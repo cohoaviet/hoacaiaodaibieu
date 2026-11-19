@@ -1,31 +1,123 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>Trung Tâm Đo Lường SĐT Khách Hàng & Tối Ưu Google Ads - Cờ Hoa Việt</title>
     <link rel="stylesheet" href="assets/css/admin.css">
     <style>
-        .ads-kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 20px; }
-        .kpi-box { background: #fff; border-radius: 8px; padding: 16px; border: 1px solid #cbd5e1; border-top: 4px solid #b71c1c; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
-        .kpi-box.blue { border-top-color: #0284c7; }
-        .kpi-box.green { border-top-color: #16a34a; }
-        .kpi-box.amber { border-top-color: #d97706; }
-        .kpi-box.purple { border-top-color: #7c3aed; }
-        .kpi-title { font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase; }
-        .kpi-value { font-size: 24px; font-weight: 900; color: #0f172a; margin: 6px 0 4px; }
-        .kpi-sub { font-size: 11.5px; color: #475569; }
+        .ads-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
 
-        .advice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
-        .advice-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; }
-        .advice-card h4 { font-size: 0.98rem; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .progress-bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 4px; }
-        .progress-bar-fill { height: 100%; background: #16a34a; border-radius: 4px; }
+        .kpi-box {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            border: 1px solid #cbd5e1;
+            border-top: 4px solid #b71c1c;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
 
-        .quality-badge { padding: 3px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 700; display: inline-block; }
-        .q-high { background: #dcfce7; color: #166534; }
-        .q-med { background: #fef3c7; color: #92400e; }
-        .q-low { background: #fee2e2; color: #991b1b; }
+        .kpi-box.blue {
+            border-top-color: #0284c7;
+        }
+
+        .kpi-box.green {
+            border-top-color: #16a34a;
+        }
+
+        .kpi-box.amber {
+            border-top-color: #d97706;
+        }
+
+        .kpi-box.purple {
+            border-top-color: #7c3aed;
+        }
+
+        .kpi-title {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .kpi-value {
+            font-size: 24px;
+            font-weight: 900;
+            color: #0f172a;
+            margin: 6px 0 4px;
+        }
+
+        .kpi-sub {
+            font-size: 11.5px;
+            color: #475569;
+        }
+
+        .advice-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .advice-card {
+            background: #fff;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 16px;
+        }
+
+        .advice-card h4 {
+            font-size: 0.98rem;
+            color: #0f172a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .progress-bar-bg {
+            width: 100%;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: #16a34a;
+            border-radius: 4px;
+        }
+
+        .quality-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 11.5px;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .q-high {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .q-med {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .q-low {
+            background: #fee2e2;
+            color: #991b1b;
+        }
 
         .phone-badge-captured {
             background: #dcfce7;
@@ -40,6 +132,7 @@
             gap: 5px;
             text-decoration: none;
         }
+
         .phone-badge-none {
             color: #94a3b8;
             font-size: 12px;
@@ -47,25 +140,50 @@
         }
 
         @media (max-width: 1150px) {
-            .ads-kpi-grid { grid-template-columns: repeat(3, 1fr); }
-            .advice-grid { grid-template-columns: 1fr; }
+            .ads-kpi-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .advice-grid {
+                grid-template-columns: 1fr;
+            }
         }
+
         @media (max-width: 640px) {
-            .ads-kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            .kpi-box { padding: 12px; }
-            .kpi-title { font-size: 11px; }
-            .kpi-value { font-size: 20px; }
-            .kpi-sub { font-size: 11px; }
+            .ads-kpi-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .kpi-box {
+                padding: 12px;
+            }
+
+            .kpi-title {
+                font-size: 11px;
+            }
+
+            .kpi-value {
+                font-size: 20px;
+            }
+
+            .kpi-sub {
+                font-size: 11px;
+            }
         }
     </style>
 </head>
+
 <body>
 
     <!-- MÀN HÌNH KHÓA BẢO MẬT -->
-    <div id="loginOverlay" style="position:fixed; inset:0; background:#0f172a; z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px;">
-        <div style="background:#fff; width:100%; max-width:420px; border-radius:10px; padding:24px; box-shadow:0 15px 35px rgba(0,0,0,0.4);">
+    <div id="loginOverlay"
+        style="position:fixed; inset:0; background:#0f172a; z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px;">
+        <div
+            style="background:#fff; width:100%; max-width:420px; border-radius:10px; padding:24px; box-shadow:0 15px 35px rgba(0,0,0,0.4);">
             <h2 style="color:#b71c1c; text-align:center; margin-bottom:6px;">🔐 ĐĂNG NHẬP XEM BÁO CÁO ADS</h2>
-            <p style="text-align:center; font-size:12.5px; color:#64748b; margin-bottom:20px;">Bảo mật dữ liệu SĐT khách hàng & chiến dịch Google Ads</p>
+            <p style="text-align:center; font-size:12.5px; color:#64748b; margin-bottom:20px;">Bảo mật dữ liệu SĐT khách
+                hàng & chiến dịch Google Ads</p>
             <form onsubmit="handleAdsLogin(event)">
                 <div class="form-group">
                     <label>Tài khoản</label>
@@ -75,7 +193,8 @@
                     <label>Mật khẩu</label>
                     <input type="password" id="loginPass" required placeholder="Nhập mật khẩu quản trị...">
                 </div>
-                <div id="loginErrorMsg" style="color:#dc2626; font-size:12.5px; margin-bottom:12px; font-weight:600;"></div>
+                <div id="loginErrorMsg" style="color:#dc2626; font-size:12.5px; margin-bottom:12px; font-weight:600;">
+                </div>
                 <button type="submit" class="btn-primary" style="width:100%;">🔓 Mở Bảng Đo Lường Google Ads</button>
             </form>
         </div>
@@ -86,13 +205,16 @@
             <h2>📈 TRUNG TÂM THEO DÕI SĐT KHÁCH TRUY CẬP, HIỂN THỊ & TỐI ƯU GOOGLE ADS</h2>
         </div>
         <div class="header-tools">
-            <button type="button" onclick="simulateAdsTrafficSession()" class="btn-sm" style="background:#f59e0b; color:#fff; padding:7px 12px;">
+            <button type="button" onclick="simulateAdsTrafficSession()" class="btn-sm"
+                style="background:#f59e0b; color:#fff; padding:7px 12px;">
                 ⚡ Giả lập Khách Vào Từ Ads (Có SĐT)
             </button>
-            <button type="button" onclick="copyCapturedPhoneNumbers()" class="btn-sm" style="background:#0284c7; color:#fff; padding:7px 12px;">
+            <button type="button" onclick="copyCapturedPhoneNumbers()" class="btn-sm"
+                style="background:#0284c7; color:#fff; padding:7px 12px;">
                 📞 Copy DS Số Điện Thoại Khách
             </button>
-            <button type="button" onclick="exportAdsReportCSV()" class="btn-sm" style="background:#10b981; color:#fff; padding:7px 12px;">
+            <button type="button" onclick="exportAdsReportCSV()" class="btn-sm"
+                style="background:#10b981; color:#fff; padding:7px 12px;">
                 📥 Xuất Báo Cáo CSV (Kèm SĐT)
             </button>
             <a href="admin.html" class="btn-view-site" style="background:#475569;">⚙️ Về Trang Admin</a>
@@ -131,9 +253,9 @@
             </div>
             <div class="kpi-box" style="border-top-color:#dc2626;">
                 <div class="kpi-title">🚨 Phiên Thoát Nhanh (< 5s)</div>
-                <div class="kpi-value" id="kpiBounceCount" style="color:#dc2626;">0</div>
-                <div class="kpi-sub">Nghi vấn Click ảo / Sai từ khóa</div>
-            </div>
+                        <div class="kpi-value" id="kpiBounceCount" style="color:#dc2626;">0</div>
+                        <div class="kpi-sub">Nghi vấn Click ảo / Sai từ khóa</div>
+                </div>
         </section>
 
         <!-- 2. TRỢ LÝ PHÂN TÍCH & GỢI Ý TỐI ƯU CHIẾN DỊCH TỰ ĐỘNG -->
@@ -148,17 +270,19 @@
             </div>
             <div class="advice-card" style="border-left: 4px solid #dc2626;">
                 <h4>🛡️ 3. Cảnh báo Click Ảo (< 3 giây thoát ngay)</h4>
-                <div id="adviceFraudWarning" style="font-size:13px; color:#334155; line-height:1.55;"></div>
-                <button type="button" onclick="copyBadAdsIPs()" class="btn-sm" style="background:#b71c1c; color:#fff; margin-top:10px;">
-                    📋 Copy IP Thoát Nhanh (< 3s) Để Chặn Ads
-                </button>
+                        <div id="adviceFraudWarning" style="font-size:13px; color:#334155; line-height:1.55;"></div>
+                        <button type="button" onclick="copyBadAdsIPs()" class="btn-sm"
+                            style="background:#b71c1c; color:#fff; margin-top:10px;">
+                            📋 Copy IP Thoát Nhanh (< 3s) Để Chặn Ads </button>
             </div>
         </section>
 
         <!-- 3. BẢNG HIỆU SUẤT TỪNG TRANG ĐÍCH / SẢN PHẨM -->
         <div class="card" style="margin-bottom: 20px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
-                <h3 style="margin:0; border:none; padding:0;">📊 Bảng Phân Tích Hiệu Quả Từng Trang Đích Sản Phẩm (Landing Page Performance)</h3>
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                <h3 style="margin:0; border:none; padding:0;">📊 Bảng Phân Tích Hiệu Quả Từng Trang Đích Sản Phẩm
+                    (Landing Page Performance)</h3>
                 <span style="font-size:12px; color:#64748b;">Tự động làm mới mỗi 3 giây khi khách đang xem trang</span>
             </div>
             <table class="admin-table">
@@ -179,19 +303,25 @@
 
         <!-- 4. NHẬT KÝ PHIÊN TƯƠNG TÁC CHI TIẾT KÈM SỐ ĐIỆN THOẠI KHÁCH TRUY CẬP -->
         <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+            <div
+                style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
                 <div>
-                    <h3 style="margin:0; border:none; padding:0;">⏱️ Nhật Ký Phiên Truy Cập, Số Điện Thoại Khách Hàng & Thời Gian Tương Tác</h3>
+                    <h3 style="margin:0; border:none; padding:0;">⏱️ Nhật Ký Phiên Truy Cập, Số Điện Thoại Khách Hàng &
+                        Thời Gian Tương Tác</h3>
                     <p style="font-size:12px; color:#64748b;">
-                        Ghi nhận chi tiết từng khách truy cập: <strong>Số điện thoại (khi khách để lại SĐT nhận báo giá Zalo hoặc bấm Gọi)</strong>, Địa chỉ IP, Từ khóa Google Ads, Thời gian đọc bài và Độ sâu cuộn trang.
+                        Ghi nhận chi tiết từng khách truy cập: <strong>Số điện thoại (khi khách để lại SĐT nhận báo giá
+                            Zalo hoặc bấm Gọi)</strong>, Địa chỉ IP, Từ khóa Google Ads, Thời gian đọc bài và Độ sâu
+                        cuộn trang.
                     </p>
                 </div>
                 <div style="display:flex; gap:8px; align-items:center;">
-                    <label style="font-size:12.5px; display:flex; align-items:center; gap:5px; cursor:pointer; margin:0;">
+                    <label
+                        style="font-size:12.5px; display:flex; align-items:center; gap:5px; cursor:pointer; margin:0;">
                         <input type="checkbox" id="filterOnlyWithPhone" onchange="renderAdsDashboard()">
                         <strong>Chỉ hiện khách đã có SĐT</strong>
                     </label>
-                    <button type="button" class="btn-sm" style="background:#64748b; color:#fff;" onclick="if(confirm('Xóa lịch sử phiên đo lường?')){localStorage.removeItem('cms_ads_sessions'); renderAdsDashboard();}">
+                    <button type="button" class="btn-sm" style="background:#64748b; color:#fff;"
+                        onclick="if(confirm('Xóa lịch sử phiên đo lường?')){localStorage.removeItem('cms_ads_sessions'); renderAdsDashboard();}">
                         🗑️ Làm mới lịch sử
                     </button>
                 </div>
@@ -401,4 +531,5 @@
         });
     </script>
 </body>
+
 </html>

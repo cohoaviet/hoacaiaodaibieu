@@ -12,10 +12,13 @@
     <!-- Open Graph / Zalo & Facebook Share -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Cờ Hoa Việt">
-    <meta property="og:title" id="og-title" content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
-    <meta property="og:description" id="og-desc" content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
+    <meta property="og:title" id="og-title"
+        content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
+    <meta property="og:description" id="og-desc"
+        content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
     <meta property="og:url" id="og-url" content="https://hoacaiaodaibieu.vn/">
-    <meta property="og:image" id="og-image" content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
+    <meta property="og:image" id="og-image"
+        content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
 
 
     <!-- Google tag (gtag.js) - Đo lường chuyển đổi Google Ads -->
@@ -984,6 +987,7 @@
                 width: auto;
             }
         }
+
         /* === FIX DỨT ĐIỂM LỖI TRÀN KHUNG & THU NHỎ CHỮ TRÊN MOBILE === */
         html,
         body {
@@ -1002,7 +1006,7 @@
                 max-width: 100vw !important;
             }
 
-            .container > *,
+            .container>*,
             main,
             .widget-box,
             .filter-bar,
@@ -1030,6 +1034,30 @@
             .site-footer {
                 max-width: 100vw !important;
                 overflow-x: hidden;
+            }
+        }
+
+        /* === HIỂN THỊ NÚT TRÒN GỌI ĐIỆN & ZALO TRÊN MOBILE GIỐNG BẢN WEB === */
+        @media (max-width: 768px) {
+            body {
+                padding-bottom: 20px !important;
+            }
+
+            .mobile-bottom-bar {
+                display: none !important;
+            }
+
+            .floating-contact {
+                display: flex !important;
+                bottom: 20px;
+                right: 14px;
+            }
+
+            .zalo-popup {
+                bottom: 145px;
+                right: 12px;
+                left: 12px;
+                width: auto;
             }
         }
     </style>
@@ -1221,11 +1249,11 @@
                 <h3>CỜ HOA VIỆT - HOACAIAODAIBIEU.VN</h3>
                 <p><strong>Chuyên sản xuất & cung cấp:</strong> Hoa cài áo đại biểu, Nơ cài áo sự kiện, Huy hiệu tròn
                     cài áo in logo, Bảng tên nhân viên & Phụ kiện đại hội.</p>
-                <p>📞 Hotline / Zalo Cơ sở 1 TP.Hà Nội: <a href="tel:0975121636"
+                <p>📞 Cơ sở 1 TP.Hà Nội: <a href="tel:0975121636"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Ms.Thuỷ 0975 121 636</a></p>
-                <p>📞 Hotline / Zalo Cơ sở 2 TP.HCM : <a href="tel:0906111852"
+                <p>📞 Cơ sở 2 TP.HCM : <a href="tel:0906111852"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Ms.Ngọc 0906 111 852</a></p>
-                <p>📞 Hotline / Zalo Cơ sở 1 TP.Hà Nội: <a href="tel:0377548632"
+                <p>📞 Cơ sở 1 TP.Hà Nội: <a href="tel:0377548632"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Mr.Tiện 0377 548 632</a></p>
             </div>
             <div class="footer-col">
