@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang tải nội dung... | Cờ Hoa Việt - hoacaiaodaibieu.vn</title>
+    <meta name="robots" content="noindex, follow">
+
+    <script>
+        /**
+         * BỘ ĐỊNH TUYẾN DEEP-LINK TỰ ĐỘNG CHO HOSTING TĨNH & GITHUB PAGES (404.html)
+         * Hỗ trợ 2 cấu trúc URL chuẩn SEO của hoacaiaodaibieu.vn:
+         * 1. Bài đăng sản phẩm: /sanpham/{slug}/ hoặc /sanpham/{slug}/
+         * 2. Trang đích chạy Ads: /{slug}/
+         */
+        (function () {
+            const path = window.location.pathname;
+            const search = window.location.search;
+            const hash = window.location.hash || '';
+            const params = new URLSearchParams(search);
+
+            // 1. Nếu là yêu cầu tải file tĩnh bị thiếu (ảnh trong assets/uploads/, .css, .js, .json, .ico...)
+            // thì dừng lại ngay, tuyệt đối không chuyển hướng thành trang HTML để tránh lỗi vòng lặp
+            if (/\.(webp|png|jpg|jpeg|gif|svg|css|js|json|ico|txt|xml|woff|woff2|ttf)$/i.test(path) || path.includes('/assets/')) {
+                return;
+            }
+
+            // 2. Tự động nhận diện nếu web đang chạy trên thư mục con của GitHub Pages (VD: username.github.io/cohoaviet-web/)
+            // Khi đã trỏ tên miền riêng hoacaiaodaibieu.vn thì baseRepo sẽ tự động là chuỗi rỗng ''
+            let baseRepo = '';
+            const rawSegments = path.split('/').filter(Boolean);
+            let routeSegments = [...rawSegments];
+
+            if (window.location.hostname.includes('github.io') && rawSegments.length > 0) {
+                baseRepo = '/' + rawSegments[0];
+                routeSegments = rawSegments.slice(1);
+            }
+
+            // Nếu không có phân đoạn nào, đưa về trang chủ
+            if (routeSegments.length === 0) {
+                window.location.replace(baseRepo + '/index.html' + search + hash);
+                return;
+            }
+
+            // 3. TRƯỜNG HỢP 1: Đường dẫn Bài đăng sản phẩm
+            // Ví dụ: hoacaiaodaibieu.vn/sanpham/hoa-cai-ao-dai-bieu-008/
+            if (routeSegments.includes('sanpham')) {
+                const productSlug = routeSegments[routeSegments.length - 1];
+                if (productSlug && productSlug !== 'sanpham' && !productSlug.endsWith('.html')) {
+                    params.set('s', productSlug);
+                    const targetUrl = `${baseRepo}/post-detail.html?${params.toString()}${hash}`;
+                    window.location.replace(targetUrl);
+                    return;
+                }
+            }
+
+            // 4. TRƯỜNG HỢP 2: Đường dẫn Tag SEO
+            // Ví dụ: hoacaiaodaibieu.vn/tag/hoa-cai-ao-dai-bieu/
+            if (routeSegments[0] === 'tag' && routeSegments.length >= 2) {
+                const tagSlug = routeSegments[routeSegments.length - 1];
+                params.set('tag', tagSlug);
+                const targetUrl = `${baseRepo}/index.html?${params.toString()}${hash}`;
+                window.location.replace(targetUrl);
+                return;
+            }
+
+            // 5. TRƯỜNG HỢP 3: Đường dẫn Trang tĩnh / Landing Page chạy Google Ads
+            // Ví dụ: hoacaiaodaibieu.vn/hoa-cai-ao-dai-bieu/
+            const lastSegment = routeSegments[routeSegments.length - 1];
+            const systemFiles = ['index', 'admin', 'post-detail', 'page', 'ads-tracker', '404'];
+
+            if (lastSegment && !lastSegment.endsWith('.html') && !systemFiles.includes(lastSegment.toLowerCase())) {
+                params.set('s', lastSegment);
+                const targetUrl = `${baseRepo}/page.html?${params.toString()}${hash}`;
+                window.location.replace(targetUrl);
+                return;
+            }
+
+            // 6. Mặc định: Chuyển về trang chủ nhưng vẫn bảo toàn các tham số ?gclid / ?utm_source của Google Ads
+            const fallbackQuery = params.toString();
+            window.location.replace(`${baseRepo}/index.html${fallbackQuery ? '?' + fallbackQuery : ''}${hash}`);
+        })();
+    </script>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .redirect-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-top: 4px solid #b71c1c;
+            border-radius: 10px;
+            padding: 28px 24px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 4px solid #fee2e2;
+            border-top-color: #b71c1c;
+            border-radius: 50%;
+            animation: spin 0.75s linear infinite;
+            margin: 0 auto 14px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        h1 {
+            font-size: 1.1rem;
+            color: #b71c1c;
+            margin: 0 0 8px;
+        }
+
+        p {
+            font-size: 0.88rem;
+            color: #64748b;
+            margin: 0 0 16px;
+            line-height: 1.5;
+        }
+
+        .btn-home {
+            display: inline-block;
+            background: #b71c1c;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 9px 18px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.88rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="redirect-card">
+        <div class="spinner"></div>
+        <h1>CỜ HOA VIỆT - HOACAIAODAIBIEU.VN</h1>
+        <p>Đang mở nội dung sản phẩm... Nếu trình duyệt không tự động chuyển sau 2 giây, vui lòng bấm vào nút bên dưới.</p>
+        <a href="/index.html" class="btn-home">🏠 Về Trang Chủ Cờ Hoa Việt</a>
+    </div>
+</body>
+
+</html>

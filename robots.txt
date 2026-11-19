@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin.html
+Disallow: /ads-tracker.html
+
+Sitemap: https://hoacaiaodaibieu.vn/sitemap.xml

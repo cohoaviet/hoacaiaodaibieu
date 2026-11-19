@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Quản Trị CMS, Thư Mục Uploads & Chống Tấn Công DoS - Cờ Hoa Việt</title>
+    <link rel="stylesheet" href="assets/css/admin.css">
+</head>
+
+<body>
+
+    <div id="loginOverlay"
+        style="position:fixed; inset:0; background:#0f172a; z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px;">
+        <div
+            style="background:#fff; width:100%; max-width:420px; border-radius:10px; padding:24px; box-shadow:0 15px 35px rgba(0,0,0,0.4);">
+            <h2 style="color:#b71c1c; text-align:center; margin-bottom:6px;">🔐 ĐĂNG NHẬP QUẢN TRỊ</h2>
+            <p style="text-align:center; font-size:12.5px; color:#64748b; margin-bottom:20px;">Khi đăng nhập, số lượt
+                xem bài viết sẽ tự động hiển thị trên toàn web</p>
+
+            <form onsubmit="handleAdminLogin(event)">
+                <div class="form-group">
+                    <label>Tài khoản đăng nhập</label>
+                    <input type="text" id="loginUser" required placeholder="Nhập: admin hoặc editor" value="admin">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="loginPass" required placeholder="Nhập mật khẩu...">
+                </div>
+                <div id="loginErrorMsg" style="color:#dc2626; font-size:12.5px; margin-bottom:12px; font-weight:600;">
+                </div>
+                <button type="submit" class="btn-primary" style="width:100%; padding:12px;">🔓 Đăng Nhập Hệ
+                    Thống</button>
+            </form>
+        </div>
+    </div>
+
+    <header class="admin-header">
+        <div class="brand" style="display:flex; align-items:center; gap:10px;">
+            <h2>⚙️ CMS CỜ HOA VIỆT (0975 121 636)</h2>
+        </div>
+        <div class="header-tools">
+            <button type="button" onclick="connectUploadsFolderUI()" id="btnConnectFolderHeader" class="btn-sm"
+                style="background:#0284c7; color:#fff; padding:7px 12px;">
+                📂 Kết nối thư mục assets/uploads
+            </button>
+            <a href="page.html" target="_blank" class="btn-view-site" style="background:#16a34a;">🎯 Xem Trang Đích
+                Ads</a>
+            <a href="ads-tracker.html" class="btn-view-site" style="background:#d97706;">📈 Mở Trang Tối Ưu Google
+                Ads</a>
+            <div class="backup-box">
+                <button type="button" onclick="exportCMSData()" class="btn-sm"
+                    style="background:#10b981; color:#fff;">📥 Xuất JSON</button>
+                <label class="btn-sm" style="background:#f59e0b; color:#fff; cursor:pointer; margin:0;">
+                    📤 Nhập JSON <input type="file" id="importJsonFile" accept=".json" style="display:none;"
+                        onchange="importCMSData(event)">
+                </label>
+            </div>
+
+            <div class="role-switcher">
+                <span>TK: <strong id="currentUsernameLabel" style="color:#fde047;">admin</strong></span>
+                <select id="roleSelector" onchange="switchRole(this.value)">
+                    <option value="admin">👑 Quyền Admin (Full quyền)</option>
+                    <option value="editor">✍️ Quyền Editor (Chỉ Đăng & Sửa)</option>
+                </select>
+                <a href="index.html" target="_blank" class="btn-view-site">🌐 Xem Web</a>
+                <button type="button" onclick="AuthSecurity.logout()" class="btn-sm"
+                    style="background:#dc2626; color:#fff; margin:0;">🚪 Thoát</button>
+            </div>
+        </div>
+    </header>
+
+    <div class="admin-layout">
+        <aside class="admin-sidebar">
+            <ul class="admin-nav">
+                <li><button class="nav-btn active" onclick="switchTab('tab-posts', this)">📝 Quản lý Bài đăng</button>
+                </li>
+                <li><button class="nav-btn" onclick="switchTab('tab-media', this)">🖼️ Quản lý & Sửa Xóa Ảnh</button>
+                </li>
+                <li class="admin-only"><button class="nav-btn" onclick="switchTab('tab-pages', this)">📄 Trang tĩnh
+                        (Chạy Ads)</button></li>
+                <li><button class="nav-btn" onclick="switchTab('tab-tags', this)">🏷️ Quản lý Tag SEO</button></li>
+                <li class="admin-only"><button class="nav-btn" onclick="switchTab('tab-users', this)">🔐 Tài khoản &
+                        Phân quyền</button></li>
+                <li class="admin-only"><button class="nav-btn" onclick="switchTab('tab-analytics', this)">🛡️ Chống DoS
+                        & Lọc IP Ads</button></li>
+                <li class="admin-only"><a href="ads-tracker.html" class="nav-btn"
+                        style="display:block; text-decoration:none; background:#b45309; color:#fff; margin-top:6px;">📈
+                        Trang Đo Lường Google Ads ➔</a></li>
+            </ul>
+            <div class="permission-notice" id="permissionNotice"></div>
+        </aside>
+
+        <main class="admin-main">
+
+            <!-- THANH TRẠNG THÁI KẾT NỐI THƯ MỤC VẬT LÝ "assets/uploads/" -->
+            <div class="card"
+                style="margin-bottom: 18px; background: #f0fdf4; border: 1.5px solid #16a34a; padding: 12px 16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div>
+                        <strong style="color:#15803d; font-size:0.95rem;">📂 Trạng thái thư mục lưu ảnh vật lý
+                            <code>assets/uploads/</code>:</strong>
+                        <span id="uploadFolderStatusText"
+                            style="font-size:0.86rem; color:#334155; margin-left:6px;">Đang lưu trong bộ đệm 500MB
+                            (Bấm nút bên phải để gắn kết thư mục <code>assets/uploads</code> trên ổ cứng máy tính)</span>
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <button type="button" onclick="connectUploadsFolderUI()" class="btn-sm"
+                            style="background:#16a34a; color:#fff; padding:7px 12px;">
+                            📂 Chọn Thư Mục assets/uploads Trên Máy
+                        </button>
+                        <button type="button" onclick="syncAllCachedImagesToDiskUI()" class="btn-sm"
+                            style="background:#0284c7; color:#fff; padding:7px 12px;">
+                            🔄 Xuất Toàn Bộ Ảnh Ra assets/uploads
+                        </button>
+                        <label style="font-size:12px; display:flex; align-items:center; gap:4px; cursor:pointer; margin:0;">
+                            <input type="checkbox" id="chkAutoDownloadWebp" onchange="toggleAutoDownloadWebp(this.checked)">
+                            Tự tải file .webp khi chọn ảnh
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 1: QUẢN LÝ BÀI ĐĂNG -->
+            <section id="tab-posts" class="tab-panel active">
+                <div class="panel-grid">
+                    <div class="card" id="postFormCard">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:2px solid #f1f5f9; padding-bottom:10px; margin-bottom:14px;">
+                            <div>
+                                <span id="modeBadge"
+                                    style="background:#16a34a; color:#fff; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px; display:inline-block; margin-bottom:4px;">
+                                    🟢 CHẾ ĐỘ: ĐĂNG BÀI VIẾT MỚI
+                                </span>
+                                <h3 id="postFormTitle" style="margin:0; border:none; padding:0;">➕ Soạn Bài Sản Phẩm Mới
+                                </h3>
+                            </div>
+                            <button type="button" id="btnSwitchToNewPost" onclick="resetPostForm()"
+                                style="background:#0284c7; color:#fff; border:none; padding:8px 14px; border-radius:6px; font-weight:700; cursor:pointer; display:none;">
+                                ➕ Thoát Sửa ➔ Tạo Bài Đăng Mới
+                            </button>
+                        </div>
+
+                        <form id="postForm" onsubmit="handleSavePost(event)">
+                            <input type="hidden" id="postId" value="">
+
+                            <div class="form-group">
+                                <label>Tiêu đề bài viết (Dùng để tự động đặt tên file ảnh SEO & gợi ý Tag) *</label>
+                                <input type="text" id="postTitle" required
+                                    placeholder="VD: Hoa Cài Áo Đại Biểu 008 / Bảng tên"
+                                    oninput="autoGeneratePostSlug()">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Slug URL (Hiển thị: hoacaiaodaibieu.vn/sanpham/{slug}/) *</label>
+                                    <input type="text" id="postSlug" required placeholder="hoa-cai-ao-dai-bieu-008">
+                                </div>
+                                <div class="form-group">
+                                    <label>Danh mục Menu Trái</label>
+                                    <select id="postCategory">
+                                        <option value="hoa-cai-ao">Hoa Cài Áo Đại Biểu</option>
+                                        <option value="hoa-cai-ao-su-kien">Hoa Cài Áo Sự Kiện</option>
+                                        <option value="huy-hieu-tron">Huy Hiệu Tròn In Logo</option>
+                                        <option value="bang-ten">Bảng Tên & Thẻ Tên</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mô tả Meta Description (Chuẩn SEO Google - tối đa 160 ký tự)</label>
+                                <textarea id="postMetaDesc" rows="2" maxlength="160"></textarea>
+                            </div>
+
+                            <!-- THÔNG TIN CƠ BẢN VỀ SẢN PHẨM (MÀU SẮC, CHẤT LIỆU, KIỂU CÁCH) -->
+                            <div class="upload-box" style="background:#f0f9ff; border-color:#0284c7;">
+                                <label class="upload-title" style="color:#0369a1;">📋 Thông Tin Cơ Bản Về Sản Phẩm (Hiển
+                                    thị đầu bài giống mẫu Bao Đựng Thẻ / Hoa Đại Biểu)</label>
+                                <div class="form-row">
+                                    <div>
+                                        <label style="font-size:12.5px;">Màu sắc sản phẩm</label>
+                                        <input type="text" id="postColors"
+                                            placeholder="VD: Xanh, đỏ, vàng, xanh lá cây, xanh dương, đen, nâu,....">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:12.5px;">Chất liệu</label>
+                                        <input type="text" id="postMaterial"
+                                            placeholder="VD: Da, Mica, Hợp kim nhôm / Ruy băng lụa cao cấp">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style="font-size:12.5px;">Kiểu cách</label>
+                                    <input type="text" id="postStyleSpec"
+                                        placeholder="VD: Màu sắc đa dạng / Hoa tròn 8 cánh ghim cài">
+                                </div>
+                            </div>
+
+                            <!-- CẤU HÌNH ĐÓNG DẤU WATERMARK -->
+                            <div class="upload-box" style="background: #fffbeb; border-color: #f59e0b;">
+                                <label class="upload-title" style="color: #b45309;">🛡️ Cấu hình Watermark "cohoaviet.vn
+                                    0975 121 636" & Chuẩn hóa Khung Ảnh 4:3</label>
+                                <div class="form-row" style="margin-bottom: 0; align-items: center;">
+                                    <div>
+                                        <label style="font-size: 12.5px;">Vị trí đóng dấu</label>
+                                        <select id="wmPosition" onchange="reprocessThumbnailWatermark()">
+                                            <option value="both" selected>⭐ Kép: Mờ chéo giữa + Nổi góc dưới phải
+                                            </option>
+                                            <option value="center">Chéo chính giữa ảnh</option>
+                                            <option value="tiled">Lưới phủ toàn bộ ảnh</option>
+                                            <option value="corner-br">Chỉ đóng góc dưới bên phải</option>
+                                            <option value="corner-bl">Chỉ đóng góc dưới bên trái</option>
+                                            <option value="none">Không đóng dấu</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size: 12.5px;">
+                                            Độ đậm / mờ chữ (Opacity): <strong id="wmOpacityLabel"
+                                                style="color:var(--primary);">40%</strong>
+                                        </label>
+                                        <input type="range" id="wmOpacity" min="0.1" max="0.9" step="0.05" value="0.4"
+                                            style="width: 100%; cursor: pointer; accent-color: var(--primary);"
+                                            oninput="document.getElementById('wmOpacityLabel').innerText = Math.round(this.value * 100) + '%'"
+                                            onchange="reprocessThumbnailWatermark()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- UPLOAD 1: ẢNH ĐẠI DIỆN LƯU VÀO assets/uploads/ -->
+                            <div class="upload-box">
+                                <label class="upload-title">🖼️ Upload 1: Ảnh đại diện 800x600px (Lưu vào
+                                    <code>assets/uploads/</code>)</label>
+                                <input type="file" id="thumbInput" accept="image/*"
+                                    onchange="handleThumbnailUpload(event)">
+                                <input type="hidden" id="postThumbData">
+                                <input type="hidden" id="postThumbSeoName">
+                                <input type="hidden" id="postThumbUploadPath">
+                                <input type="hidden" id="postThumbAlt">
+                                <div id="thumbPreviewBox" class="preview-area"></div>
+                            </div>
+
+                            <!-- UPLOAD 2: ẢNH TRONG BÀI LƯU VÀO assets/uploads/ -->
+                            <div class="upload-box">
+                                <label class="upload-title">🔍 Upload 2: Chèn ảnh vào bài 1000x750px (Lưu vào
+                                    <code>assets/uploads/</code> + Zoom)</label>
+                                <div class="form-row">
+                                    <input type="text" id="inlineImgAlt"
+                                        placeholder="Mô tả Alt tùy chọn (Bỏ trống sẽ tự sinh chuẩn SEO)">
+                                    <input type="file" id="inlineImgInput" accept="image/*" multiple
+                                        onchange="handleInlineImagesUpload(event)">
+                                </div>
+                                <div id="inlineUploadLog"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nội dung bài đăng mở rộng (HTML) *</label>
+                                <textarea id="postContent" rows="6" required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tag SEO của bài viết (Tự động tích chọn khi Upload ảnh)</label>
+                                <select id="postTagsSelect" multiple class="multi-select"></select>
+                                <div id="autoTagNotice"
+                                    style="font-size:12px; color:#15803d; margin-top:5px; font-weight:600;"></div>
+                            </div>
+
+                            <div id="saveStatusBanner"
+                                style="display:none; padding:10px 14px; border-radius:6px; font-weight:700; margin-bottom:12px;">
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" id="btnSubmitPost" class="btn-primary">💾 Đăng Bài Viết
+                                    Mới</button>
+                                <button type="button" class="btn-secondary" onclick="resetPostForm()">➕ Làm Mới / Chuyển
+                                    Về Đăng Bài Mới</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px; border-bottom:2px solid #f1f5f9; padding-bottom:8px;">
+                            <h3 style="margin:0; border:none; padding:0;">📋 Danh Sách Bài Viết (<span
+                                    id="totalPostsCount">0</span>)</h3>
+                            <button type="button" class="btn-sm"
+                                style="background:#16a34a; color:#fff; padding:7px 12px;"
+                                onclick="resetPostForm(); document.getElementById('postTitle').focus();">
+                                ➕ Tạo Bài Viết Mới
+                            </button>
+                        </div>
+                        <p style="font-size:12px; color:#64748b; margin-bottom:10px;">
+                            Bộ nhớ IndexedDB tốc độ cao đã dùng: <strong id="storageUsageText" style="color:#16a34a;">0
+                                KB</strong> / <strong>500 MB (512,000 KB)</strong>
+                        </p>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Ảnh (4:3)</th>
+                                    <th>Tiêu đề, URL SEO & Đường dẫn ảnh</th>
+                                    <th>Lượt xem</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="postTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: TRANG QUẢN LÝ, SỬA & XÓA ẢNH TRONG assets/uploads/ -->
+            <section id="tab-media" class="tab-panel">
+                <div class="panel-grid">
+                    <div class="card">
+                        <h3 id="mediaFormTitle">🖼️ Chỉnh Sửa / Thay Thế Hình Ảnh Trong <code>assets/uploads/</code></h3>
+                        <form id="mediaEditForm" onsubmit="handleUpdateMediaItem(event)">
+                            <input type="hidden" id="editMediaPostId">
+                            <input type="hidden" id="editMediaType">
+                            <input type="hidden" id="editMediaInlineIdx">
+                            <input type="hidden" id="editMediaNewDataUrl">
+
+                            <div class="form-group">
+                                <label>Thuộc bài viết</label>
+                                <input type="text" id="editMediaPostTitle" readonly
+                                    style="background:#f1f5f9; font-weight:700;">
+                            </div>
+                            <div class="form-group">
+                                <label>Thẻ Alt & Title chuẩn SEO của ảnh *</label>
+                                <input type="text" id="editMediaAlt" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Tên file ảnh trong thư mục <code>assets/uploads/</code> *</label>
+                                <input type="text" id="editMediaFilename" required>
+                            </div>
+                            <div class="upload-box">
+                                <label class="upload-title">🔄 Chọn file ảnh mới nếu muốn thay thế bức ảnh này</label>
+                                <input type="file" id="editMediaFileInput" accept="image/*"
+                                    onchange="handleReplaceMediaPreview(event)">
+                                <div id="editMediaPreview" class="preview-area" style="margin-top:10px;"></div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">💾 Lưu Thay Đổi Hình Ảnh</button>
+                                <button type="button" class="btn-secondary"
+                                    onclick="document.getElementById('mediaEditForm').reset(); document.getElementById('editMediaPreview').innerHTML='';">Hủy</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>🗂️ Toàn Bộ Ảnh Trong <code>assets/uploads/</code> (<span id="totalMediaCount">0</span> ảnh)
+                        </h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Ảnh (4:3)</th>
+                                    <th>Loại ảnh & Bài viết</th>
+                                    <th>Đường dẫn <code>assets/uploads/</code> & Alt</th>
+                                    <th>Sửa / Tải / Xóa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mediaTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: QUẢN LÝ TRANG TĨNH & LANDING PAGE CHẠY QUẢNG CÁO GOOGLE ADS -->
+            <section id="tab-pages" class="tab-panel">
+                <div class="panel-grid">
+                    <div class="card" id="pageFormCard">
+                        <div
+                            style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; border-bottom:2px solid #f1f5f9; padding-bottom:10px; margin-bottom:14px;">
+                            <div>
+                                <span id="pageModeBadge"
+                                    style="background:#16a34a; color:#fff; font-size:12px; font-weight:700; padding:4px 10px; border-radius:20px; display:inline-block; margin-bottom:4px;">
+                                    🟢 CHẾ ĐỘ: TẠO TRANG ĐÍCH QUẢNG CÁO ADS MỚI
+                                </span>
+                                <h3 id="pageFormTitle" style="margin:0; border:none; padding:0;">📄 Soạn Trang Chính /
+                                    Landing Page Chạy Google Ads</h3>
+                            </div>
+                            <button type="button" id="btnSwitchToNewPage" onclick="resetPageForm()"
+                                style="background:#0284c7; color:#fff; border:none; padding:7px 12px; border-radius:6px; font-weight:700; cursor:pointer; display:none;">
+                                ➕ Thoát Sửa ➔ Tạo Trang Mới
+                            </button>
+                        </div>
+
+                        <form id="pageForm" onsubmit="handleSavePage(event)">
+                            <input type="hidden" id="pageId" value="">
+
+                            <div class="form-group">
+                                <label>Tiêu đề chính Trang Đích Quảng Cáo (H1 & SEO Title) *</label>
+                                <input type="text" id="pageTitle" required
+                                    placeholder="VD: Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo"
+                                    oninput="document.getElementById('pageSlug').value = TagManager.toSlug(this.value)">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Slug Trang (Hiển thị: hoacaiaodaibieu.vn/{slug}/) *</label>
+                                    <input type="text" id="pageSlug" required placeholder="hoa-cai-ao-dai-bieu">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nhãn Khuyến Mãi Nổi Bật (Trên đầu Banner)</label>
+                                    <input type="text" id="pagePromoBadge"
+                                        placeholder="VD: ⭐ GIẢM 15% ĐƠN ĐẠI HỘI + MIỄN PHÍ THIẾT KẾ">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Mô tả Tóm tắt Quảng cáo (Meta Description & Phụ đề Banner Hero) *</label>
+                                <textarea id="pageMetaDesc" rows="2" required
+                                    placeholder="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, huy hiệu tròn in logo, bảng tên nhân viên. Giao nhanh HN, HCM & toàn quốc..."></textarea>
+                            </div>
+
+                            <!-- UPLOAD ẢNH BANNER HERO CHO TRANG QUẢNG CÁO -->
+                            <div class="upload-box">
+                                <label class="upload-title">🖼️ Upload Ảnh Banner Chính Cho Trang Quảng Cáo (Lưu vào
+                                    <code>assets/uploads/</code>)</label>
+                                <input type="file" id="pageThumbInput" accept="image/*"
+                                    onchange="handlePageBannerUpload(event)">
+                                <input type="hidden" id="pageThumbData">
+                                <div id="pageThumbPreviewBox" class="preview-area"></div>
+                            </div>
+
+                            <!-- UPLOAD CHÈN NHIỀU ẢNH BÁO GIÁ / XƯỞNG VÀO NỘI DUNG TRANG -->
+                            <div class="upload-box">
+                                <label class="upload-title">🔍 Chèn Ảnh Thực Tế / Bảng Giá Vào Nội Dung Trang Quảng Cáo
+                                    (Lưu vào <code>assets/uploads/</code>)</label>
+                                <input type="file" id="pageInlineImgInput" accept="image/*" multiple
+                                    onchange="handlePageInlineUpload(event)">
+                                <div id="pageInlineUploadLog"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nội dung Chi tiết Trang Quảng Cáo (Bảng giá, Quy trình đặt hàng, Cam kết HTML)
+                                    *</label>
+                                <textarea id="pageContent" rows="7" required
+                                    placeholder="Nhập nội dung giới thiệu xưởng, bảng báo giá theo số lượng..."></textarea>
+                            </div>
+
+                            <div class="form-actions">
+                                <button type="submit" id="btnSubmitPage" class="btn-primary">💾 Lưu & Xuất Bản Trang
+                                    Quảng Cáo</button>
+                                <button type="button" class="btn-secondary" onclick="resetPageForm()">🔄 Làm mới
+                                    Form</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>📑 Danh Sách Trang Đích Quảng Cáo (Landing Pages)</h3>
+                        <p style="font-size:12px; color:#64748b; margin-bottom:12px;">
+                            Đường dẫn chuẩn khi chạy Google Ads: <strong><code>hoacaiaodaibieu.vn/{slug}/</code></strong>
+                        </p>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Ảnh Banner</th>
+                                    <th>Tên Trang & Đường dẫn chạy Ads</th>
+                                    <th>Lượt xem</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pageTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: QUẢN LÝ TAG SEO -->
+            <section id="tab-tags" class="tab-panel">
+                <div class="panel-grid">
+                    <div class="card">
+                        <h3>🏷️ Thêm / Sửa Tag Phục Vụ SEO</h3>
+                        <form id="tagForm" onsubmit="handleSaveTag(event)">
+                            <input type="hidden" id="tagId">
+                            <div class="form-group">
+                                <label>Tên Tag SEO *</label>
+                                <input type="text" id="tagName" required
+                                    oninput="document.getElementById('tagSlug').value = TagManager.toSlug(this.value)">
+                            </div>
+                            <div class="form-group">
+                                <label>Slug Tag</label>
+                                <input type="text" id="tagSlug" readonly>
+                            </div>
+                            <div class="form-group">
+                                <label>Mô tả Meta Description cho Tag</label>
+                                <textarea id="tagDesc" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">💾 Lưu Tag SEO</button>
+                        </form>
+                    </div>
+                    <div class="card">
+                        <h3>🔍 Danh Sách Tag SEO</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Tên Tag</th>
+                                    <th>Slug</th>
+                                    <th>Mô tả SEO</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tagTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: ĐỔI MẬT KHẨU ADMIN & CẤP QUYỀN TÀI KHOẢN -->
+            <section id="tab-users" class="tab-panel">
+                <div class="panel-grid">
+                    <div class="card">
+                        <h3>🔑 Thay Đổi Mật Khẩu Admin (Mã Hóa SHA-256)</h3>
+                        <form id="changePassForm" onsubmit="handleChangePassword(event)">
+                            <div class="form-group">
+                                <label>Tài khoản cần đổi mật khẩu</label>
+                                <input type="text" id="cpUsername" value="admin" readonly
+                                    style="background:#f1f5f9; font-weight:700;">
+                            </div>
+                            <div class="form-group">
+                                <label>Mật khẩu hiện tại *</label>
+                                <input type="password" id="cpOldPass" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Mật khẩu mới *</label>
+                                    <input type="password" id="cpNewPass" required minlength="6">
+                                </div>
+                                <div class="form-group">
+                                    <label>Nhập lại mật khẩu mới *</label>
+                                    <input type="password" id="cpConfirmPass" required minlength="6">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-primary">🔒 Cập Nhật Mật Khẩu Mới</button>
+                        </form>
+
+                        <hr style="margin: 24px 0; border: none; border-top: 2px dashed #e2e8f0;">
+
+                        <h3 id="userFormTitle">👥 Tạo Tài Khoản Mới & Cấp Quyền Đăng / Sửa Bài</h3>
+                        <form id="userRoleForm" onsubmit="handleSaveUserAccount(event)">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Tên đăng nhập *</label>
+                                    <input type="text" id="accUsername" required placeholder="VD: nhanvien_seo1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Họ tên / Vị trí *</label>
+                                    <input type="text" id="accFullName" required
+                                        placeholder="VD: Bạn Lan - CTV Đăng bài">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Cấp quyền hạn (Role) *</label>
+                                    <select id="accRole">
+                                        <option value="editor" selected>✍️ Người đăng bài - Editor (Chỉ Đăng & Sửa bài)
+                                        </option>
+                                        <option value="admin">👑 Quản trị viên - Admin (Full quyền)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Mật khẩu cấp phát *</label>
+                                    <input type="password" id="accPassword">
+                                </div>
+                            </div>
+                            <div class="form-actions">
+                                <button type="submit" class="btn-primary">➕ Lưu & Cấp Quyền Tài Khoản</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <h3>📋 Danh Sách Tài Khoản & Quản Lý Nhân Sự</h3>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Tài khoản</th>
+                                    <th>Họ tên / Vị trí</th>
+                                    <th>Quyền & Trạng thái</th>
+                                    <th>Cập nhật</th>
+                                    <th>Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 6: CHỐNG TẤN CÔNG DoS & LỌC IP GOOGLE ADS -->
+            <section id="tab-analytics" class="tab-panel">
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <h4>Tổng Phiên Truy Cập</h4>
+                        <div class="stat-number" id="statTotalViews">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Tổng Bài Viết Sản Phẩm</h4>
+                        <div class="stat-number" id="statTotalPosts">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Tổng Hình Ảnh Chuẩn 4:3</h4>
+                        <div class="stat-number" id="statTotalMedia">0</div>
+                    </div>
+                </div>
+
+                <div class="card" style="margin-top: 24px; border: 2px solid #ef4444;">
+                    <div
+                        style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-bottom:14px;">
+                        <div>
+                            <h3 style="color:#b71c1c; margin-bottom:4px; border:none; padding:0;">🛡️ Tường Lửa Chống
+                                Tấn Công DoS (HTTP 429) & Lọc IP Click Tặc Google Ads</h3>
+                            <p style="font-size:12.5px; color:#64748b;">
+                                Xem phân tích sâu về SĐT khách truy cập, Thời gian tương tác & Độ sâu cuộn trang tại <a
+                                    href="ads-tracker.html" style="color:#b71c1c; font-weight:700;">📈 Trang Tối Ưu
+                                    Google Ads ➔</a>
+                            </p>
+                        </div>
+                        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                            <button type="button" class="btn-sm"
+                                style="background:#b71c1c; color:#fff; padding:8px 14px;"
+                                onclick="copyBlacklistForGoogleAds()">📋 Copy DS IP Chặn Google Ads</button>
+                            <button type="button" class="btn-sm"
+                                style="background:#7c3aed; color:#fff; padding:8px 12px;"
+                                onclick="simulateDoSAttackLog()">🛑 Giả lập Bắt Tấn Công DoS</button>
+                            <button type="button" class="btn-sm"
+                                style="background:#f59e0b; color:#fff; padding:8px 12px;"
+                                onclick="simulateClickFraudTest()">⚡ Giả lập Click Tặc Ads</button>
+                            <button type="button" class="btn-sm"
+                                style="background:#64748b; color:#fff; padding:8px 12px;"
+                                onclick="localStorage.removeItem('cms_ip_logs'); localStorage.removeItem('dos_ban_until'); renderAllTables();">🗑️
+                                Xóa Log / Mở khóa DoS</button>
+                        </div>
+                    </div>
+
+                    <div id="blacklistBox"
+                        style="background:#fef2f2; border:1px dashed #ef4444; padding:10px 14px; border-radius:6px; margin-bottom:14px; font-size:13px; color:#991b1b;">
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr style="background:#f8fafc;">
+                                    <th>Địa chỉ IP & Nhà mạng</th>
+                                    <th>Mã Thiết Bị (Fingerprint)</th>
+                                    <th>Nguồn / Tường lửa</th>
+                                    <th>Tần suất (60s / Tổng)</th>
+                                    <th>Trạng thái Chống DoS & Ads</th>
+                                    <th>Thời gian</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ipShieldTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="assets/js/cms-core.js"></script>
+    <script>
+        let currentRawThumbFile = null;
+        let inlineImageCounter = 1;
+        let currentSelectedTagSlugs = [];
+
+        // ============================================================================
+        // KẾT NỐI & ĐỒNG BỘ THƯ MỤC VẬT LÝ "assets/uploads/" TRÊN MÁY TÍNH
+        // ============================================================================
+        async function connectUploadsFolderUI() {
+            const res = await UploadFolderManager.connectPhysicalFolder();
+            if (res && res.connected) {
+                document.getElementById('uploadFolderStatusText').innerHTML =
+                    `<strong style="color:#16a34a;">✅ ĐÃ KẾT NỐI THƯ MỤC VẬT LÝ: <code>${res.folderName}/</code></strong> — Mọi ảnh tải lên sẽ tự động lưu thành file <code>.webp</code> vào thư mục này!`;
+                document.getElementById('btnConnectFolderHeader').innerHTML = `✅ Đã gắn: ${res.folderName}/`;
+                document.getElementById('btnConnectFolderHeader').style.background = '#16a34a';
+            }
+        }
+
+        async function syncAllCachedImagesToDiskUI() {
+            const res = await UploadFolderManager.syncAllCachedImagesToPhysicalFolder();
+            if (res && res.success) {
+                document.getElementById('uploadFolderStatusText').innerHTML =
+                    `<strong style="color:#16a34a;">✅ Đã xuất thành công ${res.count} file ảnh .webp ra thư mục <code>${res.folderName}/</code> trên ổ cứng!</strong>`;
+                alert(`✅ Đã ghi thành công ${res.count} file ảnh chuẩn SEO (.webp) vào thư mục "${res.folderName}"!`);
+            }
+        }
+
+        function toggleAutoDownloadWebp(checked) {
+            UploadFolderManager.autoDownloadOnUpload = checked;
+            localStorage.setItem('cms_auto_download_uploads', checked ? 'true' : 'false');
+        }
+
+        async function handleAdminLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+            const res = await AuthSecurity.login(u, p);
+            if (res.success) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('currentUsernameLabel').innerText = currentUser.username;
+                document.getElementById('cpUsername').value = currentUser.username;
+                applyRolePermissionsUI();
+                renderAllTables();
+            } else {
+                document.getElementById('loginErrorMsg').innerText = res.message;
+            }
+        }
+
+        function getWatermarkSettings() {
+            const posEl = document.getElementById('wmPosition');
+            const opaEl = document.getElementById('wmOpacity');
+            return {
+                mode: posEl ? posEl.value : 'both',
+                opacity: opaEl ? parseFloat(opaEl.value) : 0.4
+            };
+        }
+
+        function switchRole(role) {
+            try {
+                const sess = JSON.parse(localStorage.getItem('cms_auth_session') || '{}');
+                if (sess.role !== ROLES.ADMIN && role === ROLES.ADMIN) {
+                    alert('Tài khoản Editor không có quyền chuyển sang Admin!');
+                    document.getElementById('roleSelector').value = ROLES.EDITOR;
+                    return;
+                }
+            } catch (e) {}
+            currentUser.role = role;
+            localStorage.setItem('current_role', role);
+            applyRolePermissionsUI();
+            renderAllTables();
+        }
+
+        function applyRolePermissionsUI() {
+            const isAdmin = currentUser.role === ROLES.ADMIN;
+            const roleSel = document.getElementById('roleSelector');
+            roleSel.value = currentUser.role;
+            roleSel.disabled = !isAdmin;
+            roleSel.style.opacity = isAdmin ? '1' : '0.6';
+            document.getElementById('currentUsernameLabel').innerText = currentUser.username || 'admin';
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = isAdmin ? 'block' : 'none');
+
+            const notice = document.getElementById('permissionNotice');
+            if (isAdmin) {
+                notice.innerHTML = '🟢 <strong>Quyền Admin:</strong> Toàn quyền Bài viết, Sửa/Xóa Ảnh, Trang Đích Ads, Tag SEO, Tài khoản & Đo lường Google Ads.';
+                notice.className = 'permission-notice notice-admin';
+            } else {
+                notice.innerHTML = '🟡 <strong>Quyền Editor:</strong> Chỉ có quyền Đăng và Sửa bài/ảnh. Chức năng Xóa đã khóa.';
+                notice.className = 'permission-notice notice-editor';
+            }
+        }
+
+        function autoSelectGeneratedTags(newTagSlugs) {
+            if (!newTagSlugs || !newTagSlugs.length) return;
+            const selectEl = document.getElementById('postTagsSelect');
+            const existingSelected = Array.from(selectEl.selectedOptions).map(o => o.value);
+            const merged = new Set([...existingSelected, ...currentSelectedTagSlugs, ...newTagSlugs]);
+            currentSelectedTagSlugs = Array.from(merged);
+
+            const allTags = TagManager.getAll();
+            selectEl.innerHTML = allTags.map(t => `
+                <option value="${t.slug}" ${merged.has(t.slug) ? 'selected' : ''}>${t.name} (#${t.slug})</option>
+            `).join('');
+
+            document.getElementById('autoTagNotice').innerText = `🏷️ Đã tự động gắn ${merged.size} Tag SEO: ${currentSelectedTagSlugs.map(s => '#' + s).join(', ')}`;
+        }
+
+        // Upload 1: Ảnh đại diện (Lưu vào assets/uploads/)
+        async function handleThumbnailUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            currentRawThumbFile = file;
+            await reprocessThumbnailWatermark();
+        }
+
+        async function reprocessThumbnailWatermark() {
+            if (!currentRawThumbFile) return;
+            const wm = getWatermarkSettings();
+            const seoContext = {
+                postTitle: document.getElementById('postTitle').value,
+                category: document.getElementById('postCategory').value,
+                index: 1
+            };
+
+            const res = await optimizeAndUploadImage(currentRawThumbFile, 800, 0.80, wm.mode, wm.opacity, seoContext);
+            document.getElementById('postThumbData').value = res.dataUrl;
+            document.getElementById('postThumbSeoName').value = res.seoFilename;
+            document.getElementById('postThumbUploadPath').value = res.uploadPath;
+            document.getElementById('postThumbAlt').value = res.autoAlt;
+
+            autoSelectGeneratedTags(res.autoTags);
+
+            const saveNotice = res.physicalSaved
+                ? `<span style="color:#15803d;font-weight:800;">(Đã ghi thẳng file vào ổ cứng: <code>${res.uploadPath}</code>)</span>`
+                : `<span>(Đường dẫn: <code>${res.uploadPath}</code>)</span>`;
+
+            document.getElementById('thumbPreviewBox').innerHTML = `
+                <div class="opt-badge">
+                    ✅ <strong>Đã lưu vào thư mục:</strong> <code>${res.uploadPath}</code> ${saveNotice}<br>
+                    ✅ <strong>Kích thước 4:3 (${res.dimensions}px) & Watermark:</strong> ${res.originalSize} ➔ <strong>${res.optimizedSize}</strong>
+                </div>
+                <img src="${res.rawBase64 || res.dataUrl}" alt="${res.autoAlt}" style="aspect-ratio:4/3; object-fit:cover;">
+            `;
+        }
+
+        // Upload 2: Ảnh chi tiết trong bài (Lưu vào assets/uploads/)
+        async function handleInlineImagesUpload(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+            const wm = getWatermarkSettings();
+            const customAlt = document.getElementById('inlineImgAlt').value;
+            const contentArea = document.getElementById('postContent');
+            const logArea = document.getElementById('inlineUploadLog');
+
+            for (const file of files) {
+                const seoContext = {
+                    postTitle: document.getElementById('postTitle').value,
+                    category: document.getElementById('postCategory').value,
+                    customAlt: customAlt,
+                    index: inlineImageCounter++
+                };
+
+                const res = await optimizeAndUploadImage(file, 1000, 0.78, wm.mode, wm.opacity, seoContext);
+                contentArea.value += `\n<img src="${res.dataUrl}" alt="${res.autoAlt}" title="${res.autoAlt}" data-seo-filename="${res.seoFilename}" data-upload-path="${res.uploadPath}" class="zoomable" loading="lazy">\n`;
+
+                autoSelectGeneratedTags(res.autoTags);
+
+                logArea.innerHTML += `
+                    <div class="opt-badge">
+                        ➕ <strong>Đã lưu vào:</strong> <code>${res.uploadPath}</code> (${res.originalSize} ➔ <strong>${res.optimizedSize}</strong>)
+                    </div>
+                `;
+            }
+        }
+
+        // Quản lý Sửa / Xóa Ảnh (Media Manager)
+        function openEditMediaForm(postId, type, inlineIndex) {
+            const allMedia = MediaManager.getAllImages();
+            const item = allMedia.find(m => String(m.postId) === String(postId) && m.type === type && m.inlineIndex === inlineIndex);
+            if (!item) return;
+
+            document.getElementById('editMediaPostId').value = item.postId;
+            document.getElementById('editMediaType').value = item.type;
+            document.getElementById('editMediaInlineIdx').value = item.inlineIndex;
+            document.getElementById('editMediaNewDataUrl').value = '';
+            document.getElementById('editMediaPostTitle').value = `${item.typeLabel} — Bài: ${item.postTitle}`;
+            document.getElementById('editMediaAlt').value = item.alt;
+            document.getElementById('editMediaFilename').value = item.seoFilename;
+            document.getElementById('editMediaPreview').innerHTML = `
+                <div class="opt-badge">Đường dẫn hiện tại: <code>${item.uploadPath}</code></div>
+                <img src="${item.src}" style="aspect-ratio:4/3; max-height:130px; object-fit:cover;">
+            `;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function handleReplaceMediaPreview(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const wm = getWatermarkSettings();
+            const seoContext = {
+                postTitle: document.getElementById('editMediaAlt').value || 'Hoa cài áo đại biểu Cờ Hoa Việt',
+                category: 'hoa-cai-ao',
+                index: 1
+            };
+            const res = await optimizeAndUploadImage(file, 800, 0.80, wm.mode, wm.opacity, seoContext);
+            document.getElementById('editMediaNewDataUrl').value = res.dataUrl;
+            document.getElementById('editMediaFilename').value = res.seoFilename;
+            document.getElementById('editMediaPreview').innerHTML = `
+                <div class="opt-badge">✅ Đã lưu ảnh mới vào <code>${res.uploadPath}</code>: ${res.originalSize} ➔ <strong>${res.optimizedSize}</strong></div>
+                <img src="${res.rawBase64 || res.dataUrl}" style="aspect-ratio:4/3; max-height:130px; object-fit:cover;">
+            `;
+        }
+
+        async function handleUpdateMediaItem(e) {
+            e.preventDefault();
+            const postId = document.getElementById('editMediaPostId').value;
+            if (!postId) return alert('Hãy bấm nút "✏️ Sửa / Thay ảnh" ở một bức ảnh trong bảng bên phải trước!');
+
+            const type = document.getElementById('editMediaType').value;
+            const inlineIdx = parseInt(document.getElementById('editMediaInlineIdx').value, 10);
+            const newSrc = document.getElementById('editMediaNewDataUrl').value || null;
+            const newAlt = document.getElementById('editMediaAlt').value.trim();
+            const newSeoName = document.getElementById('editMediaFilename').value.trim();
+
+            if (await MediaManager.updateImage(postId, type, inlineIdx, { newSrc, newAlt, newSeoName })) {
+                alert('Đã cập nhật thông tin & hình ảnh thành công!');
+                document.getElementById('mediaEditForm').reset();
+                document.getElementById('editMediaPreview').innerHTML = '';
+                renderAllTables();
+            }
+        }
+
+        async function handleDeleteMediaItem(postId, type, inlineIndex) {
+            const msg = type === 'thumbnail'
+                ? 'Đặt lại ảnh đại diện của bài viết này về ảnh mặc định?'
+                : 'Xóa vĩnh viễn bức ảnh này khỏi nội dung bài viết?';
+            if (confirm(msg)) {
+                if (await MediaManager.deleteImage(postId, type, inlineIndex)) {
+                    renderAllTables();
+                }
+            }
+        }
+
+        // Xử lý Quản lý Trang Tĩnh / Trang Đích Quảng Cáo Google Ads
+        async function handlePageBannerUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const wm = getWatermarkSettings();
+            const seoContext = {
+                postTitle: document.getElementById('pageTitle').value || 'Bảng báo giá Cờ Hoa Việt',
+                category: 'hoa-cai-ao',
+                index: 1
+            };
+            const res = await optimizeAndUploadImage(file, 800, 0.82, wm.mode, wm.opacity, seoContext);
+            document.getElementById('pageThumbData').value = res.dataUrl;
+            document.getElementById('pageThumbPreviewBox').innerHTML = `
+                <div class="opt-badge">✅ Đã lưu Banner vào <code>${res.uploadPath}</code> (${res.dimensions}px): ${res.originalSize} ➔ <strong>${res.optimizedSize}</strong></div>
+                <img src="${res.rawBase64 || res.dataUrl}" style="aspect-ratio:4/3; object-fit:cover;">
+            `;
+        }
+
+        async function handlePageInlineUpload(event) {
+            const files = Array.from(event.target.files);
+            if (!files.length) return;
+            const wm = getWatermarkSettings();
+            const contentArea = document.getElementById('pageContent');
+            const logArea = document.getElementById('pageInlineUploadLog');
+
+            for (const file of files) {
+                const seoContext = {
+                    postTitle: document.getElementById('pageTitle').value || 'Xưởng sản xuất Cờ Hoa Việt',
+                    category: 'hoa-cai-ao',
+                    index: inlineImageCounter++
+                };
+                const res = await optimizeAndUploadImage(file, 1000, 0.80, wm.mode, wm.opacity, seoContext);
+                contentArea.value += `\n<img src="${res.dataUrl}" alt="${res.autoAlt}" title="${res.autoAlt}" data-seo-filename="${res.seoFilename}" data-upload-path="${res.uploadPath}" class="zoomable" loading="lazy">\n`;
+                logArea.innerHTML += `<div class="opt-badge">➕ Đã lưu vào <code>${res.uploadPath}</code> (${res.optimizedSize})</div>`;
+            }
+        }
+
+        async function handleSavePage(e) {
+            e.preventDefault();
+            const pageIdVal = document.getElementById('pageId').value.trim();
+            const titleVal = document.getElementById('pageTitle').value.trim();
+            const slugVal = document.getElementById('pageSlug').value.trim() || TagManager.toSlug(titleVal);
+
+            const pageObj = {
+                id: pageIdVal || null,
+                title: titleVal,
+                slug: slugVal,
+                promoBadge: document.getElementById('pagePromoBadge').value.trim() || '⭐ XƯỞNG SẢN XUẤT TRỰC TIẾP - GIÁ GỐC TẬN XƯỞNG',
+                metaDesc: document.getElementById('pageMetaDesc').value.trim(),
+                thumb: document.getElementById('pageThumbData').value || 'https://via.placeholder.com/800x600/b71c1c/ffffff.webp?text=Bang+Bao+Gia+Co+Hoa+Viet',
+                content: document.getElementById('pageContent').value
+            };
+
+            if (await PageManager.savePage(pageObj)) {
+                alert(`✅ Đã lưu Trang Quảng Cáo "${titleVal}" thành công!\nURL chuẩn SEO: hoacaiaodaibieu.vn/${slugVal}/`);
+                resetPageForm();
+                renderAllTables();
+            }
+        }
+
+        function editPage(id) {
+            const pg = PageManager.getAll().find(p => String(p.id) === String(id));
+            if (!pg) return;
+
+            document.getElementById('pageModeBadge').style.background = '#d97706';
+            document.getElementById('pageModeBadge').innerText = `🟠 ĐANG SỬA TRANG QUẢNG CÁO: ${pg.title}`;
+            document.getElementById('pageFormTitle').innerText = '✏️ Chỉnh Sửa Trang Đích Quảng Cáo';
+            document.getElementById('btnSubmitPage').innerText = '💾 Lưu Cập Nhật Trang Này';
+            document.getElementById('btnSwitchToNewPage').style.display = 'inline-block';
+
+            document.getElementById('pageId').value = pg.id;
+            document.getElementById('pageTitle').value = pg.title || '';
+            document.getElementById('pageSlug').value = pg.slug || '';
+            document.getElementById('pagePromoBadge').value = pg.promoBadge || '';
+            document.getElementById('pageMetaDesc').value = pg.metaDesc || '';
+            document.getElementById('pageThumbData').value = pg.thumb || '';
+            document.getElementById('pageContent').value = pg.content || '';
+            document.getElementById('pageThumbPreviewBox').innerHTML = pg.thumb
+                ? `<img src="${pg.thumb}" style="aspect-ratio:4/3; object-fit:cover;">`
+                : '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetPageForm() {
+            document.getElementById('pageForm').reset();
+            document.getElementById('pageId').value = '';
+            document.getElementById('pageThumbData').value = '';
+            document.getElementById('pageThumbPreviewBox').innerHTML = '';
+            document.getElementById('pageInlineUploadLog').innerHTML = '';
+
+            document.getElementById('pageModeBadge').style.background = '#16a34a';
+            document.getElementById('pageModeBadge').innerText = '🟢 CHẾ ĐỘ: TẠO TRANG ĐÍCH QUẢNG CÁO ADS MỚI';
+            document.getElementById('pageFormTitle').innerText = '📄 Soạn Trang Chính / Landing Page Chạy Google Ads';
+            document.getElementById('btnSubmitPage').innerText = '💾 Lưu & Xuất Bản Trang Quảng Cáo';
+            document.getElementById('btnSwitchToNewPage').style.display = 'none';
+        }
+
+        function copyPageAdsUrl(slug) {
+            const adsUrl = `${SEORouter.domain}/${slug}/?utm_source=google&utm_medium=cpc&utm_campaign=${slug}`;
+            navigator.clipboard.writeText(adsUrl);
+            alert(`📋 Đã copy đường dẫn Trang Đích chuẩn SEO & Google Ads:\n\n${adsUrl}\n\nBạn có thể dán trực tiếp vào ô URL cuối cùng (Final URL) trong chiến dịch Google Ads!`);
+        }
+
+        function copyPostSeoUrl(slug) {
+            const postUrl = `${SEORouter.domain}/sanpham/${slug}/`;
+            navigator.clipboard.writeText(postUrl);
+            alert(`📋 Đã copy URL bài đăng sản phẩm chuẩn SEO:\n\n${postUrl}`);
+        }
+
+        // Quản lý Tài khoản
+        async function handleChangePassword(e) {
+            e.preventDefault();
+            const user = document.getElementById('cpUsername').value;
+            const oldP = document.getElementById('cpOldPass').value;
+            const newP = document.getElementById('cpNewPass').value;
+            const cfmP = document.getElementById('cpConfirmPass').value;
+            if (newP !== cfmP) return alert('Xác nhận mật khẩu không khớp!');
+
+            const res = await AuthSecurity.changePassword(user, oldP, newP);
+            alert(res.message);
+            if (res.success) {
+                document.getElementById('changePassForm').reset();
+                document.getElementById('cpUsername').value = currentUser.username || 'admin';
+                renderAllTables();
+            }
+        }
+
+        async function handleSaveUserAccount(e) {
+            e.preventDefault();
+            const res = await AuthSecurity.upsertUserAccount({
+                username: document.getElementById('accUsername').value,
+                fullName: document.getElementById('accFullName').value,
+                role: document.getElementById('accRole').value,
+                password: document.getElementById('accPassword').value
+            });
+            alert(res.message);
+            if (res.success) {
+                document.getElementById('userRoleForm').reset();
+                renderAllTables();
+            }
+        }
+
+        async function toggleUserRoleQuick(username, currentRole) {
+            const newRole = currentRole === ROLES.ADMIN ? ROLES.EDITOR : ROLES.ADMIN;
+            const res = await AuthSecurity.upsertUserAccount({ username, role: newRole, password: '' });
+            if (res.success) renderAllTables();
+        }
+
+        function fillUserToEdit(username, fullName, role) {
+            document.getElementById('accUsername').value = username;
+            document.getElementById('accFullName').value = fullName;
+            document.getElementById('accRole').value = role;
+            document.getElementById('accUsername').focus();
+        }
+
+        function autoGeneratePostSlug() {
+            document.getElementById('postSlug').value = TagManager.toSlug(document.getElementById('postTitle').value);
+        }
+
+        function showSaveBanner(msg, isSuccess = true) {
+            const banner = document.getElementById('saveStatusBanner');
+            banner.style.display = 'block';
+            banner.style.background = isSuccess ? '#dcfce7' : '#fee2e2';
+            banner.style.color = isSuccess ? '#166534' : '#991b1b';
+            banner.innerHTML = msg;
+            setTimeout(() => { banner.style.display = 'none'; }, 6000);
+        }
+
+        async function handleSavePost(e) {
+            e.preventDefault();
+            const postIdVal = document.getElementById('postId').value.trim();
+            const titleVal = document.getElementById('postTitle').value.trim();
+            const catVal = document.getElementById('postCategory').value;
+            const slugVal = document.getElementById('postSlug').value.trim() || TagManager.toSlug(titleVal);
+
+            const selectedFromDOM = Array.from(document.getElementById('postTagsSelect').selectedOptions).map(o => o.value);
+            const finalTags = selectedFromDOM.length > 0
+                ? selectedFromDOM
+                : (currentSelectedTagSlugs.length > 0 ? currentSelectedTagSlugs : TagManager.autoExtractAndEnsureTags(titleVal, catVal, ''));
+
+            const defaultSeoName = `${slugVal}-cohoaviet-1.webp`;
+            const seoFileName = document.getElementById('postThumbSeoName').value || defaultSeoName;
+            const uploadPath = document.getElementById('postThumbUploadPath').value || `assets/uploads/${seoFileName}`;
+
+            const result = await PostManager.savePost({
+                id: postIdVal || null,
+                title: titleVal,
+                subTitle: titleVal,
+                slug: slugVal,
+                category: catVal,
+                colors: document.getElementById('postColors').value.trim() || 'Xanh, đỏ, vàng, xanh lá cây, xanh dương, đen, nâu,....',
+                material: document.getElementById('postMaterial').value.trim() || 'Ruy băng lụa cao cấp / Da / Mica / Hợp kim nhôm',
+                styleSpec: document.getElementById('postStyleSpec').value.trim() || 'Màu sắc đa dạng / Hoa cài áo đại biểu',
+                metaDesc: document.getElementById('postMetaDesc').value.trim(),
+                thumb: document.getElementById('postThumbData').value || 'https://via.placeholder.com/800x600/b71c1c/ffffff.webp?text=Co+Hoa+Viet+4:3',
+                thumbSeoName: seoFileName,
+                thumbUploadPath: uploadPath,
+                thumbAlt: document.getElementById('postThumbAlt').value || `${titleVal} - Cờ Hoa Việt`,
+                content: document.getElementById('postContent').value,
+                tags: finalTags
+            });
+
+            if (result && result.success) {
+                const actionText = result.mode === 'edit' ? 'CẬP NHẬT SỬA BÀI VIẾT' : 'ĐĂNG BÀI VIẾT MỚI';
+                resetPostForm();
+                renderAllTables();
+                showSaveBanner(`✅ Đã ${actionText} thành công: "${titleVal}"!<br>🔗 Đường dẫn SEO: <code>hoacaiaodaibieu.vn/sanpham/${slugVal}/</code>`, true);
+            }
+        }
+
+        function editPost(id) {
+            const post = PostManager.getAll().find(p => String(p.id) === String(id));
+            if (!post) return;
+
+            document.getElementById('modeBadge').style.background = '#d97706';
+            document.getElementById('modeBadge').innerText = `🟠 CHẾ ĐỘ: ĐANG SỬA BÀI VIẾT (ID: ${post.id})`;
+            document.getElementById('postFormTitle').innerText = '✏️ Chỉnh Sửa Bài Viết';
+            document.getElementById('btnSubmitPost').innerText = '💾 Lưu Cập Nhật Bài Đang Sửa';
+            document.getElementById('btnSwitchToNewPost').style.display = 'inline-block';
+            document.getElementById('postFormCard').style.border = '2px solid #f59e0b';
+
+            document.getElementById('postId').value = post.id;
+            document.getElementById('postTitle').value = post.title || '';
+            document.getElementById('postSlug').value = post.slug || '';
+            document.getElementById('postCategory').value = post.category || 'hoa-cai-ao';
+            document.getElementById('postColors').value = post.colors || '';
+            document.getElementById('postMaterial').value = post.material || '';
+            document.getElementById('postStyleSpec').value = post.styleSpec || '';
+            document.getElementById('postMetaDesc').value = post.metaDesc || '';
+            document.getElementById('postThumbData').value = post.thumb || '';
+            document.getElementById('postThumbSeoName').value = post.thumbSeoName || '';
+            document.getElementById('postThumbUploadPath').value = post.thumbUploadPath || `assets/uploads/${post.thumbSeoName || (post.slug + '.webp')}`;
+            document.getElementById('postThumbAlt').value = post.thumbAlt || post.title || '';
+            document.getElementById('postContent').value = post.content || '';
+            document.getElementById('thumbPreviewBox').innerHTML = post.thumb
+                ? `<div class="opt-badge">File ảnh: <code>${post.thumbUploadPath || ('assets/uploads/' + post.thumbSeoName)}</code></div><img src="${post.thumb}" style="aspect-ratio:4/3; object-fit:cover;">`
+                : '';
+
+            currentSelectedTagSlugs = Array.isArray(post.tags) ? [...post.tags] : [];
+            autoSelectGeneratedTags(currentSelectedTagSlugs);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function removePost(id) {
+            if (confirm('Xác nhận xóa bài viết này?')) {
+                if (await PostManager.deletePost(id)) {
+                    if (String(document.getElementById('postId').value) === String(id)) resetPostForm();
+                    renderAllTables();
+                }
+            }
+        }
+
+        function resetPostForm() {
+            document.getElementById('postForm').reset();
+            currentRawThumbFile = null;
+            inlineImageCounter = 1;
+            currentSelectedTagSlugs = [];
+
+            document.getElementById('postId').value = '';
+            document.getElementById('postThumbData').value = '';
+            document.getElementById('postThumbSeoName').value = '';
+            document.getElementById('postThumbUploadPath').value = '';
+            document.getElementById('postThumbAlt').value = '';
+            document.getElementById('thumbPreviewBox').innerHTML = '';
+            document.getElementById('inlineUploadLog').innerHTML = '';
+            document.getElementById('autoTagNotice').innerText = '';
+            document.getElementById('wmOpacityLabel').innerText = '40%';
+
+            document.getElementById('modeBadge').style.background = '#16a34a';
+            document.getElementById('modeBadge').innerText = '🟢 CHẾ ĐỘ: ĐĂNG BÀI VIẾT MỚI';
+            document.getElementById('postFormTitle').innerText = '➕ Soạn Bài Sản Phẩm Mới';
+            document.getElementById('btnSubmitPost').innerText = '💾 Đăng Bài Viết Mới';
+            document.getElementById('btnSwitchToNewPost').style.display = 'none';
+            document.getElementById('postFormCard').style.border = '1px solid #cbd5e1';
+
+            Array.from(document.getElementById('postTagsSelect').options).forEach(o => o.selected = false);
+        }
+
+        function editTag(id) {
+            const t = TagManager.getAll().find(x => String(x.id) === String(id));
+            if (!t) return;
+            document.getElementById('tagId').value = t.id;
+            document.getElementById('tagName').value = t.name;
+            document.getElementById('tagSlug').value = t.slug;
+            document.getElementById('tagDesc').value = t.desc || '';
+        }
+
+        function handleSaveTag(e) {
+            e.preventDefault();
+            TagManager.saveTag({
+                id: document.getElementById('tagId').value || null,
+                name: document.getElementById('tagName').value,
+                desc: document.getElementById('tagDesc').value
+            });
+            document.getElementById('tagForm').reset();
+            document.getElementById('tagId').value = '';
+            renderAllTables();
+        }
+
+        function exportCMSData() {
+            const backup = {
+                version: "4.0",
+                exportDate: new Date().toISOString(),
+                posts: PostManager.getAll(),
+                tags: TagManager.getAll(),
+                pages: PageManager.getAll(),
+                users: AuthSecurity.getUsers(),
+                analytics: JSON.parse(localStorage.getItem('cms_analytics') || '{}')
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backup, null, 2));
+            const a = document.createElement('a');
+            a.href = dataStr;
+            a.download = `cohoaviet_backup_${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+        }
+
+        function importCMSData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!data.posts || !data.tags) return alert('File JSON không hợp lệ!');
+                    if (confirm('Ghi đè dữ liệu từ bản sao lưu này?')) {
+                        await HighCapacityDB.setItem('cms_posts', data.posts);
+                        await HighCapacityDB.setItem('cms_tags', data.tags);
+                        if (data.pages) await HighCapacityDB.setItem('cms_pages', data.pages);
+                        if (data.users) localStorage.setItem('cms_users', JSON.stringify(data.users));
+                        if (data.analytics) localStorage.setItem('cms_analytics', JSON.stringify(data.analytics));
+                        localStorage.setItem('cms_local_modified', 'true');
+                        alert('Khôi phục dữ liệu thành công!');
+                        renderAllTables();
+                    }
+                } catch (err) {
+                    alert('Lỗi đọc file: ' + err.message);
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function renderAdShieldTable() {
+            const tbody = document.getElementById('ipShieldTableBody');
+            const box = document.getElementById('blacklistBox');
+            if (!tbody) return;
+
+            const logs = AdShield.getLogs();
+            const badIPs = AdShield.getBlacklistedIPs();
+
+            box.innerHTML = badIPs.length > 0
+                ? `<strong>🚨 Danh sách IP Tấn công DoS / Click Tặc cần chặn (${badIPs.length} IP):</strong> <code>${badIPs.join(', ')}</code>`
+                : `✅ Tường lửa DoS & Google Ads đang hoạt động ổn định, chưa phát hiện IP vượt ngưỡng.`;
+
+            tbody.innerHTML = logs.map(item => `
+                <tr style="${item.isSuspicious ? 'background:#fff1f2; font-weight:600;' : ''}">
+                    <td>
+                        <strong style="color:${item.isSuspicious ? '#dc2626' : '#0f172a'};">${item.ip}</strong><br>
+                        <small style="color:#64748b;">${item.isp} (${item.city})</small>
+                    </td>
+                    <td><code>${item.fingerprint}</code></td>
+                    <td>${item.source}</td>
+                    <td><strong>${item.clicksIn60s}</strong> lần/60s (Tổng: ${item.totalClicks})</td>
+                    <td>
+                        <span style="color:${item.isSuspicious ? '#dc2626' : '#16a34a'};">${item.status}</span><br>
+                        <small style="color:#475569;">${item.reason}</small>
+                    </td>
+                    <td><small>${item.lastSeen}</small></td>
+                </tr>
+            `).join('');
+        }
+
+        function copyBlacklistForGoogleAds() {
+            const badIPs = AdShield.getBlacklistedIPs();
+            if (badIPs.length === 0) return alert('Chưa có IP bất thường nào trong danh sách chặn!');
+            navigator.clipboard.writeText(badIPs.join('\n'));
+            alert(`Đã copy ${badIPs.length} IP tấn công DoS / Click tặc!`);
+        }
+
+        function simulateDoSAttackLog() {
+            let logs = AdShield.getLogs();
+            logs.unshift({
+                ip: '103.116.' + Math.floor(Math.random() * 200 + 10) + '.' + Math.floor(Math.random() * 250 + 1),
+                isp: 'DataCenter Botnet Flood',
+                city: 'Unknown',
+                fingerprint: 'FP-DOSFLOOD88',
+                source: '🛑 DoS Firewall (HTTP 429)',
+                clicksIn60s: 64,
+                totalClicks: 120,
+                status: '🛑 ĐÃ CHẶN TẤN CÔNG DoS (Khóa 5 phút)',
+                reason: 'Tấn công làm ngập trang (64 requests trong 15 giây)',
+                isSuspicious: true,
+                lastSeen: new Date().toLocaleTimeString('vi-VN') + ' ' + new Date().toLocaleDateString('vi-VN')
+            });
+            localStorage.setItem('cms_ip_logs', JSON.stringify(logs));
+            renderAdShieldTable();
+        }
+
+        function simulateClickFraudTest() {
+            let logs = AdShield.getLogs();
+            logs.unshift({
+                ip: '14.232.' + Math.floor(Math.random() * 200 + 10) + '.' + Math.floor(Math.random() * 250 + 1),
+                isp: 'Viettel / 4G Mobile Proxy',
+                city: 'Hanoi',
+                fingerprint: 'FP-BOT992A',
+                source: '🎯 Google Ads (?gclid=Cj0KCQ...)',
+                clicksIn60s: 9,
+                totalClicks: 14,
+                status: '🚨 NGUY HIỂM (Click Tặc Google Ads)',
+                reason: 'Bấm quảng cáo 9 lần trong 45 giây từ cùng 1 thiết bị',
+                isSuspicious: true,
+                lastSeen: new Date().toLocaleTimeString('vi-VN') + ' ' + new Date().toLocaleDateString('vi-VN')
+            });
+            localStorage.setItem('cms_ip_logs', JSON.stringify(logs));
+            renderAdShieldTable();
+        }
+
+        function renderAllTables() {
+            const isAdmin = currentUser.role === ROLES.ADMIN;
+            const posts = PostManager.getAll();
+            document.getElementById('totalPostsCount').innerText = posts.length;
+            document.getElementById('storageUsageText').innerText = getStorageUsageKB().toLocaleString() + ' KB';
+
+            document.getElementById('postTableBody').innerHTML = posts.map(p => {
+                const postLink = SEORouter.getPostLink(p);
+                const prettyPath = SEORouter.getPostPrettyPath(p);
+                const uploadFile = p.thumbUploadPath || `assets/uploads/${p.thumbSeoName || (p.slug + '-cohoaviet-1.webp')}`;
+                return `
+                <tr>
+                    <td><img src="${p.thumb}" class="table-thumb" alt="${p.thumbAlt || p.title}" data-seo-filename="${p.thumbSeoName || ''}"></td>
+                    <td>
+                        <a href="${postLink}" target="_blank" style="font-weight:700;color:#0f172a;text-decoration:none;">${p.title}</a><br>
+                        <small style="color:#16a34a; font-weight:700;">🔗 URL SEO: <code>hoacaiaodaibieu.vn${prettyPath}</code></small><br>
+                        <small style="color:#0284c7;">📂 Ảnh: <code>${uploadFile}</code></small><br>
+                        ${(p.tags || []).map(t => `<span class="badge-tag">#${t}</span>`).join(' ')}
+                    </td>
+                    <td><strong>${p.views || 0}</strong></td>
+                    <td>
+                        <button type="button" class="btn-sm" style="background:#10b981;color:#fff;" onclick="copyPostSeoUrl('${p.slug}')">📋 Copy URL</button>
+                        <button type="button" class="btn-sm btn-edit" onclick="editPost('${p.id}')">✏️ Sửa</button>
+                        ${isAdmin ? `<button type="button" class="btn-sm btn-del" onclick="removePost('${p.id}')">🗑️ Xóa</button>` : `<span class="locked-action">🔒</span>`}
+                    </td>
+                </tr>
+            `}).join('');
+
+            const allMedia = MediaManager.getAllImages();
+            document.getElementById('totalMediaCount').innerText = allMedia.length;
+            document.getElementById('statTotalMedia').innerText = allMedia.length;
+            document.getElementById('mediaTableBody').innerHTML = allMedia.map(m => `
+                <tr>
+                    <td><img src="${m.src}" class="table-thumb" alt="${m.alt}" data-seo-filename="${m.seoFilename}"></td>
+                    <td>
+                        <span style="font-size:11.5px; font-weight:700; color:#b71c1c;">${m.typeLabel}</span><br>
+                        <strong style="font-size:12.5px;">${m.postTitle}</strong>
+                    </td>
+                    <td>
+                        <code style="color:#15803d; font-weight:700; font-size:11.5px;">${m.uploadPath}</code><br>
+                        <small style="color:#64748b;">Alt: "${m.alt}"</small>
+                    </td>
+                    <td>
+                        <button type="button" class="btn-sm btn-edit" onclick="openEditMediaForm('${m.postId}', '${m.type}', ${m.inlineIndex})">✏️ Sửa</button>
+                        <button type="button" class="btn-sm" style="background:#10b981;color:#fff;" onclick="UploadFolderManager.triggerFileDownload('${m.seoFilename}', '${m.src}')">⬇️ Tải .webp</button>
+                        ${isAdmin ? `<button type="button" class="btn-sm btn-del" onclick="handleDeleteMediaItem('${m.postId}', '${m.type}', ${m.inlineIndex})">🗑️ Xóa</button>` : `<span class="locked-action">🔒</span>`}
+                    </td>
+                </tr>
+            `).join('');
+
+            const tags = TagManager.getAll();
+            document.getElementById('postTagsSelect').innerHTML = tags.map(t => `
+                <option value="${t.slug}" ${currentSelectedTagSlugs.includes(t.slug) ? 'selected' : ''}>${t.name} (#${t.slug})</option>
+            `).join('');
+
+            document.getElementById('tagTableBody').innerHTML = tags.map(t => `
+                <tr>
+                    <td><strong>${t.name}</strong></td>
+                    <td><code>/tag/${t.slug}/</code></td>
+                    <td>${t.desc || ''}</td>
+                    <td>
+                        <button type="button" class="btn-sm btn-edit" onclick="editTag('${t.id}')">Sửa</button>
+                        ${isAdmin ? `<button type="button" class="btn-sm btn-del" onclick="TagManager.deleteTag('${t.id}'); renderAllTables();">Xóa</button>` : `<span class="locked-action">🔒</span>`}
+                    </td>
+                </tr>
+            `).join('');
+
+            const pages = PageManager.getAll();
+            document.getElementById('pageTableBody').innerHTML = pages.map(pg => {
+                const pageLink = SEORouter.getPageLink(pg);
+                const prettyPagePath = SEORouter.getPagePrettyPath(pg);
+                return `
+                <tr>
+                    <td><img src="${pg.thumb || 'https://via.placeholder.com/800x600/b71c1c/ffffff.webp?text=Landing+Page'}" class="table-thumb" alt="${pg.title}"></td>
+                    <td>
+                        <a href="${pageLink}" target="_blank" style="font-weight:700; color:#0f172a; text-decoration:none;">${pg.title}</a><br>
+                        <small style="color:#16a34a; font-weight:700;">🔗 URL Ads: <code>hoacaiaodaibieu.vn${prettyPagePath}</code></small>
+                    </td>
+                    <td><strong>${pg.views || 0}</strong></td>
+                    <td>
+                        <a href="${pageLink}" target="_blank" class="btn-sm" style="background:#10b981; color:#fff; text-decoration:none; display:inline-block;">🌐 Xem Trang</a>
+                        <button type="button" class="btn-sm" style="background:#d97706; color:#fff;" onclick="copyPageAdsUrl('${pg.slug}')">📋 Copy Link Ads</button>
+                        <button type="button" class="btn-sm btn-edit" onclick="editPage('${pg.id}')">✏️ Sửa</button>
+                        <button type="button" class="btn-sm btn-del" onclick="if(confirm('Xóa trang này?')){PageManager.deletePage('${pg.id}').then(() => renderAllTables());}">🗑️ Xóa</button>
+                    </td>
+                </tr>
+            `}).join('');
+
+            const users = AuthSecurity.getUsers();
+            const userTbody = document.getElementById('userTableBody');
+            if (userTbody) {
+                userTbody.innerHTML = users.map(u => `
+                    <tr style="${u.locked ? 'opacity:0.6; background:#fef2f2;' : ''}">
+                        <td><strong>${u.username}</strong></td>
+                        <td>${u.fullName || ''}</td>
+                        <td>
+                            <span style="padding:3px 8px; border-radius:4px; font-weight:700; font-size:12px; background:${u.role === ROLES.ADMIN ? '#dcfce7; color:#166534;' : '#fef3c7; color:#92400e;'}">
+                                ${u.role === ROLES.ADMIN ? '👑 Admin' : '✍️ Editor'}
+                            </span>
+                            ${u.locked ? `<span style="background:#dc2626;color:#fff;font-size:11px;padding:2px 6px;border-radius:4px;margin-left:4px;">🔒 Đã khóa</span>` : ''}
+                        </td>
+                        <td><small>${u.updatedAt || ''}</small></td>
+                        <td>
+                            <button type="button" class="btn-sm btn-edit" onclick="fillUserToEdit('${u.username}', '${u.fullName || ''}', '${u.role}')">Sửa / Pass</button>
+                            ${u.username !== 'admin' ? `
+                                <button type="button" class="btn-sm" style="background:#0f172a; color:#fff;" onclick="toggleUserRoleQuick('${u.username}', '${u.role}')">⇄ Đổi quyền</button>
+                                <button type="button" class="btn-sm" style="background:#f59e0b; color:#fff;" onclick="AuthSecurity.toggleLockUserAccount('${u.username}'); renderAllTables();">${u.locked ? '🔓 Mở' : '🔒 Khóa'}</button>
+                                <button type="button" class="btn-sm btn-del" onclick="if(confirm('Xóa tài khoản ${u.username}?')) { AuthSecurity.deleteUserAccount('${u.username}'); renderAllTables(); }">Xóa</button>
+                            ` : `<span style="font-size:11px; color:#64748b;">(Admin Gốc)</span>`}
+                        </td>
+                    </tr>
+                `).join('');
+            }
+
+            const stats = JSON.parse(localStorage.getItem('cms_analytics') || '{"total":0,"pages":{},"daily":{}}');
+            document.getElementById('statTotalViews').innerText = stats.total;
+            document.getElementById('statTotalPosts').innerText = posts.length;
+
+            renderAdShieldTable();
+        }
+
+        function switchTab(tabId, btn) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            if (btn) btn.classList.add('active');
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await ensureDefaultCMSData();
+            Analytics.recordVisit('/admin.html');
+            document.getElementById('chkAutoDownloadWebp').checked = UploadFolderManager.autoDownloadOnUpload;
+            if (AuthSecurity.isAuthenticated()) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('cpUsername').value = currentUser.username || 'admin';
+            }
+            applyRolePermissionsUI();
+            renderAllTables();
+        });
+    </script>
+</body>
+
+</html>

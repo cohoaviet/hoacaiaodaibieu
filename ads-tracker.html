@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Trung Tâm Đo Lường SĐT Khách Hàng & Tối Ưu Google Ads - Cờ Hoa Việt</title>
+    <link rel="stylesheet" href="assets/css/admin.css">
+    <style>
+        .ads-kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 14px; margin-bottom: 20px; }
+        .kpi-box { background: #fff; border-radius: 8px; padding: 16px; border: 1px solid #cbd5e1; border-top: 4px solid #b71c1c; box-shadow: 0 1px 3px rgba(0,0,0,0.04); }
+        .kpi-box.blue { border-top-color: #0284c7; }
+        .kpi-box.green { border-top-color: #16a34a; }
+        .kpi-box.amber { border-top-color: #d97706; }
+        .kpi-box.purple { border-top-color: #7c3aed; }
+        .kpi-title { font-size: 12px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        .kpi-value { font-size: 24px; font-weight: 900; color: #0f172a; margin: 6px 0 4px; }
+        .kpi-sub { font-size: 11.5px; color: #475569; }
+
+        .advice-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+        .advice-card { background: #fff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 16px; }
+        .advice-card h4 { font-size: 0.98rem; color: #0f172a; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .progress-bar-bg { width: 100%; height: 8px; background: #e2e8f0; border-radius: 4px; overflow: hidden; margin-top: 4px; }
+        .progress-bar-fill { height: 100%; background: #16a34a; border-radius: 4px; }
+
+        .quality-badge { padding: 3px 8px; border-radius: 12px; font-size: 11.5px; font-weight: 700; display: inline-block; }
+        .q-high { background: #dcfce7; color: #166534; }
+        .q-med { background: #fef3c7; color: #92400e; }
+        .q-low { background: #fee2e2; color: #991b1b; }
+
+        .phone-badge-captured {
+            background: #dcfce7;
+            border: 1px solid #16a34a;
+            color: #15803d;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 13px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-decoration: none;
+        }
+        .phone-badge-none {
+            color: #94a3b8;
+            font-size: 12px;
+            font-style: italic;
+        }
+
+        @media (max-width: 1150px) {
+            .ads-kpi-grid { grid-template-columns: repeat(3, 1fr); }
+            .advice-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 640px) {
+            .ads-kpi-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MÀN HÌNH KHÓA BẢO MẬT -->
+    <div id="loginOverlay" style="position:fixed; inset:0; background:#0f172a; z-index:99999; display:flex; align-items:center; justify-content:center; padding:16px;">
+        <div style="background:#fff; width:100%; max-width:420px; border-radius:10px; padding:24px; box-shadow:0 15px 35px rgba(0,0,0,0.4);">
+            <h2 style="color:#b71c1c; text-align:center; margin-bottom:6px;">🔐 ĐĂNG NHẬP XEM BÁO CÁO ADS</h2>
+            <p style="text-align:center; font-size:12.5px; color:#64748b; margin-bottom:20px;">Bảo mật dữ liệu SĐT khách hàng & chiến dịch Google Ads</p>
+            <form onsubmit="handleAdsLogin(event)">
+                <div class="form-group">
+                    <label>Tài khoản</label>
+                    <input type="text" id="loginUser" required value="admin">
+                </div>
+                <div class="form-group">
+                    <label>Mật khẩu</label>
+                    <input type="password" id="loginPass" required placeholder="Nhập mật khẩu quản trị...">
+                </div>
+                <div id="loginErrorMsg" style="color:#dc2626; font-size:12.5px; margin-bottom:12px; font-weight:600;"></div>
+                <button type="submit" class="btn-primary" style="width:100%;">🔓 Mở Bảng Đo Lường Google Ads</button>
+            </form>
+        </div>
+    </div>
+
+    <header class="admin-header">
+        <div class="brand">
+            <h2>📈 TRUNG TÂM THEO DÕI SĐT KHÁCH TRUY CẬP, HIỂN THỊ & TỐI ƯU GOOGLE ADS</h2>
+        </div>
+        <div class="header-tools">
+            <button type="button" onclick="simulateAdsTrafficSession()" class="btn-sm" style="background:#f59e0b; color:#fff; padding:7px 12px;">
+                ⚡ Giả lập Khách Vào Từ Ads (Có SĐT)
+            </button>
+            <button type="button" onclick="copyCapturedPhoneNumbers()" class="btn-sm" style="background:#0284c7; color:#fff; padding:7px 12px;">
+                📞 Copy DS Số Điện Thoại Khách
+            </button>
+            <button type="button" onclick="exportAdsReportCSV()" class="btn-sm" style="background:#10b981; color:#fff; padding:7px 12px;">
+                📥 Xuất Báo Cáo CSV (Kèm SĐT)
+            </button>
+            <a href="admin.html" class="btn-view-site" style="background:#475569;">⚙️ Về Trang Admin</a>
+            <a href="index.html" target="_blank" class="btn-view-site">🌐 Xem Web</a>
+        </div>
+    </header>
+
+    <main class="admin-main" style="max-width: 1380px; margin: 0 auto;">
+
+        <!-- 1. 6 CHỈ SỐ ĐO LƯỜNG CỐT LÕI CỦA GOOGLE ADS -->
+        <section class="ads-kpi-grid">
+            <div class="kpi-box">
+                <div class="kpi-title">👁️ Tổng Lượt Hiển Thị Trang</div>
+                <div class="kpi-value" id="kpiImpressions">0</div>
+                <div class="kpi-sub">Tổng số lần nạp trang đích</div>
+            </div>
+            <div class="kpi-box blue">
+                <div class="kpi-title">🎯 Phiên Truy Cập Google Ads</div>
+                <div class="kpi-value" id="kpiAdsClicks">0</div>
+                <div class="kpi-sub" id="kpiAdsRatio">Chiếm 0% tổng truy cập</div>
+            </div>
+            <div class="kpi-box green">
+                <div class="kpi-title">⏱️ Thời Gian Tương Tác TB</div>
+                <div class="kpi-value" id="kpiAvgTime">0s</div>
+                <div class="kpi-sub">Thời gian khách đọc thực tế</div>
+            </div>
+            <div class="kpi-box purple">
+                <div class="kpi-title">📱 SĐT Khách Đã Thu Thập</div>
+                <div class="kpi-value" id="kpiPhonesCaptured" style="color:#16a34a;">0</div>
+                <div class="kpi-sub" id="kpiPhoneRate">Khách để lại SĐT nhận mẫu</div>
+            </div>
+            <div class="kpi-box amber">
+                <div class="kpi-title">📞 Chuyển Đổi Gọi / Zalo</div>
+                <div class="kpi-value" id="kpiConversions">0</div>
+                <div class="kpi-sub" id="kpiConvRate">Tỷ lệ chuyển đổi (CR): 0%</div>
+            </div>
+            <div class="kpi-box" style="border-top-color:#dc2626;">
+                <div class="kpi-title">🚨 Phiên Thoát Nhanh (< 5s)</div>
+                <div class="kpi-value" id="kpiBounceCount" style="color:#dc2626;">0</div>
+                <div class="kpi-sub">Nghi vấn Click ảo / Sai từ khóa</div>
+            </div>
+        </section>
+
+        <!-- 2. TRỢ LÝ PHÂN TÍCH & GỢI Ý TỐI ƯU CHIẾN DỊCH TỰ ĐỘNG -->
+        <section class="advice-grid">
+            <div class="advice-card" style="border-left: 4px solid #16a34a;">
+                <h4>💡 1. Đánh giá Chất lượng Trang đích (Landing Page)</h4>
+                <div id="adviceLandingPage" style="font-size:13px; color:#334155; line-height:1.55;"></div>
+            </div>
+            <div class="advice-card" style="border-left: 4px solid #0284c7;">
+                <h4>🎯 2. Khuyến nghị Tối ưu Giá thầu & Tệp SĐT Khách hàng</h4>
+                <div id="adviceKeywordBid" style="font-size:13px; color:#334155; line-height:1.55;"></div>
+            </div>
+            <div class="advice-card" style="border-left: 4px solid #dc2626;">
+                <h4>🛡️ 3. Cảnh báo Click Ảo (< 3 giây thoát ngay)</h4>
+                <div id="adviceFraudWarning" style="font-size:13px; color:#334155; line-height:1.55;"></div>
+                <button type="button" onclick="copyBadAdsIPs()" class="btn-sm" style="background:#b71c1c; color:#fff; margin-top:10px;">
+                    📋 Copy IP Thoát Nhanh (< 3s) Để Chặn Ads
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. BẢNG HIỆU SUẤT TỪNG TRANG ĐÍCH / SẢN PHẨM -->
+        <div class="card" style="margin-bottom: 20px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                <h3 style="margin:0; border:none; padding:0;">📊 Bảng Phân Tích Hiệu Quả Từng Trang Đích Sản Phẩm (Landing Page Performance)</h3>
+                <span style="font-size:12px; color:#64748b;">Tự động làm mới mỗi 3 giây khi khách đang xem trang</span>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr style="background:#f8fafc;">
+                        <th>Trang đích / Sản phẩm</th>
+                        <th>Lượt hiển thị (Views)</th>
+                        <th>Từ Google Ads</th>
+                        <th>Thời gian tương tác TB</th>
+                        <th>Độ sâu cuộn trang TB</th>
+                        <th>Bấm Gọi / Zalo / Để SĐT</th>
+                        <th>Đánh giá Tối ưu Ads</th>
+                    </tr>
+                </thead>
+                <tbody id="landingPageTableBody"></tbody>
+            </table>
+        </div>
+
+        <!-- 4. NHẬT KÝ PHIÊN TƯƠNG TÁC CHI TIẾT KÈM SỐ ĐIỆN THOẠI KHÁCH TRUY CẬP -->
+        <div class="card">
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:12px;">
+                <div>
+                    <h3 style="margin:0; border:none; padding:0;">⏱️ Nhật Ký Phiên Truy Cập, Số Điện Thoại Khách Hàng & Thời Gian Tương Tác</h3>
+                    <p style="font-size:12px; color:#64748b;">
+                        Ghi nhận chi tiết từng khách truy cập: <strong>Số điện thoại (khi khách để lại SĐT nhận báo giá Zalo hoặc bấm Gọi)</strong>, Địa chỉ IP, Từ khóa Google Ads, Thời gian đọc bài và Độ sâu cuộn trang.
+                    </p>
+                </div>
+                <div style="display:flex; gap:8px; align-items:center;">
+                    <label style="font-size:12.5px; display:flex; align-items:center; gap:5px; cursor:pointer; margin:0;">
+                        <input type="checkbox" id="filterOnlyWithPhone" onchange="renderAdsDashboard()">
+                        <strong>Chỉ hiện khách đã có SĐT</strong>
+                    </label>
+                    <button type="button" class="btn-sm" style="background:#64748b; color:#fff;" onclick="if(confirm('Xóa lịch sử phiên đo lường?')){localStorage.removeItem('cms_ads_sessions'); renderAdsDashboard();}">
+                        🗑️ Làm mới lịch sử
+                    </button>
+                </div>
+            </div>
+            <table class="admin-table">
+                <thead>
+                    <tr style="background:#f8fafc;">
+                        <th>Thời gian</th>
+                        <th>📞 SĐT Người Truy Cập</th>
+                        <th>IP & Thiết bị</th>
+                        <th>Nguồn / Chiến dịch (UTM / GCLID)</th>
+                        <th>Trang đích đang xem</th>
+                        <th>Thời gian tương tác</th>
+                        <th>Cuộn trang & Click</th>
+                        <th>Hành động Chuyển đổi</th>
+                        <th>Chất lượng Phiên</th>
+                    </tr>
+                </thead>
+                <tbody id="sessionLogTableBody"></tbody>
+            </table>
+        </div>
+
+    </main>
+
+    <script src="assets/js/cms-core.js"></script>
+    <script>
+        async function handleAdsLogin(e) {
+            e.preventDefault();
+            const u = document.getElementById('loginUser').value;
+            const p = document.getElementById('loginPass').value;
+            const res = await AuthSecurity.login(u, p);
+            if (res.success) {
+                document.getElementById('loginOverlay').style.display = 'none';
+                renderAdsDashboard();
+            } else {
+                document.getElementById('loginErrorMsg').innerText = res.message;
+            }
+        }
+
+        function formatSeconds(sec) {
+            sec = Math.round(sec || 0);
+            if (sec < 60) return `${sec} giây`;
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            return `${m}p ${s}s`;
+        }
+
+        // Cho phép Admin bấm thêm/sửa ghi chú SĐT trực tiếp cho 1 phiên nếu khách gọi đến số Hotline
+        function manualAssignPhone(sessionId, currentPhone) {
+            const input = prompt('Nhập hoặc cập nhật Số điện thoại của khách truy cập phiên này:', currentPhone || '');
+            if (input !== null) {
+                GoogleAdsOptimizer.updateSessionPhoneById(sessionId, input.trim());
+                renderAdsDashboard();
+            }
+        }
+
+        function renderAdsDashboard() {
+            const summary = GoogleAdsOptimizer.getAnalyticsSummary();
+            const onlyWithPhone = document.getElementById('filterOnlyWithPhone') && document.getElementById('filterOnlyWithPhone').checked;
+
+            // 1. Đổ số liệu 6 KPI
+            document.getElementById('kpiImpressions').innerText = summary.totalImpressions.toLocaleString();
+            document.getElementById('kpiAdsClicks').innerText = summary.adsSessionsCount.toLocaleString();
+            document.getElementById('kpiAdsRatio').innerText = `Chiếm ${summary.adsRatio}% tổng phiên truy cập`;
+            document.getElementById('kpiAvgTime').innerText = formatSeconds(summary.avgActiveTime);
+            document.getElementById('kpiPhonesCaptured').innerText = summary.phonesCapturedCount.toLocaleString();
+            document.getElementById('kpiPhoneRate').innerText = `Tỷ lệ thu SĐT: ${summary.phoneCaptureRate}%`;
+            document.getElementById('kpiConversions').innerText = summary.totalConversions.toLocaleString();
+            document.getElementById('kpiConvRate').innerText = `Tỷ lệ chuyển đổi (CR): ${summary.conversionRate}%`;
+            document.getElementById('kpiBounceCount').innerText = summary.fastBounceCount.toLocaleString();
+
+            // 2. Đổ khuyến nghị tối ưu tự động
+            document.getElementById('adviceLandingPage').innerHTML = summary.advice.landing;
+            document.getElementById('adviceKeywordBid').innerHTML = summary.advice.bidding;
+            document.getElementById('adviceFraudWarning').innerHTML = summary.advice.fraud;
+
+            // 3. Bảng hiệu suất từng trang đích
+            const lpBody = document.getElementById('landingPageTableBody');
+            lpBody.innerHTML = summary.pagePerformance.map(pg => {
+                let badge = `<span class="quality-badge q-med">Ổn định</span>`;
+                if (pg.avgTime >= 25 && pg.avgScroll >= 50) {
+                    badge = `<span class="quality-badge q-high">⭐ Rất tốt (Nên tăng ngân sách Ads)</span>`;
+                } else if (pg.views >= 3 && pg.avgTime < 6) {
+                    badge = `<span class="quality-badge q-low">⚠️ Thoát nhanh (Cần xem lại từ khóa)</span>`;
+                }
+
+                return `
+                    <tr>
+                        <td>
+                            <strong>${pg.title}</strong><br>
+                            <small style="color:#0284c7;"><code>${pg.path}</code></small>
+                        </td>
+                        <td><strong>${pg.views}</strong> lượt</td>
+                        <td><strong style="color:#0284c7;">${pg.adsVisits}</strong> phiên</td>
+                        <td><strong>${formatSeconds(pg.avgTime)}</strong></td>
+                        <td>
+                            <strong>${pg.avgScroll}%</strong>
+                            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.min(100, pg.avgScroll)}%;"></div></div>
+                        </td>
+                        <td><strong style="color:#16a34a;">${pg.conversions}</strong> lần</td>
+                        <td>${badge}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            // 4. Bảng nhật ký từng phiên truy cập kèm Số điện thoại
+            let displaySessions = summary.sessions;
+            if (onlyWithPhone) {
+                displaySessions = displaySessions.filter(s => s.visitorPhone && s.visitorPhone.trim() !== '');
+            }
+
+            const sBody = document.getElementById('sessionLogTableBody');
+            sBody.innerHTML = displaySessions.map(s => {
+                let qBadge = `<span class="quality-badge q-med">Đang xem (${s.activeSeconds}s)</span>`;
+                if (s.visitorPhone) {
+                    qBadge = `<span class="quality-badge q-high">⭐ KHÁCH ĐÃ ĐỂ LẠI SĐT</span>`;
+                } else if (s.converted) {
+                    qBadge = `<span class="quality-badge q-high">🔥 ĐÃ BẤM ${s.conversionType.toUpperCase()}</span>`;
+                } else if (s.activeSeconds >= 20 && s.maxScroll >= 40) {
+                    qBadge = `<span class="quality-badge q-high">✅ Khách tiềm năng đọc kỹ</span>`;
+                } else if (s.activeSeconds <= 4 && s.clicks === 0) {
+                    qBadge = `<span class="quality-badge q-low">🚨 Thoát nhanh < 5s (Nghi Click Ảo)</span>`;
+                }
+
+                const safePhone = escapeHTML(s.visitorPhone || '');
+                const safeSource = escapeHTML(s.sourceLabel || '');
+                const safeKeyword = escapeHTML(s.campaignOrKeyword || '');
+                const safeTitle = escapeHTML(s.pageTitle || '');
+                const safePath = escapeHTML(s.pagePath || '');
+                const safeSessionId = escapeHTML(s.sessionId || '');
+
+                const phoneCellHtml = safePhone
+                    ? `<a href="tel:${safePhone}" class="phone-badge-captured" title="Bấm để gọi lại cho khách">📱 ${safePhone}</a>
+                       <button type="button" onclick="manualAssignPhone('${safeSessionId}', '${safePhone}')" style="border:none;background:none;cursor:pointer;font-size:12px;" title="Sửa SĐT">✏️</button>`
+                    : `<span class="phone-badge-none">Chưa để lại SĐT</span>
+                       <button type="button" onclick="manualAssignPhone('${safeSessionId}', '')" class="btn-sm" style="background:#e2e8f0;color:#334155;padding:2px 6px;font-size:11px;" title="Ghi chú SĐT khách gọi đến">+ Gắn SĐT</button>`;
+
+                return `
+                    <tr style="${safePhone ? 'background:#f0fdf4;' : (s.activeSeconds <= 3 && s.isAds ? 'background:#fff1f2;' : '')}">
+                        <td><small>${escapeHTML(s.startTimeFormatted)}</small></td>
+                        <td>${phoneCellHtml}</td>
+                        <td>
+                            <strong>${escapeHTML(s.ip)}</strong><br>
+                            <small style="color:#64748b;">${escapeHTML(s.device)} | <code>${escapeHTML(s.fingerprint)}</code></small>
+                        </td>
+                        <td>
+                            <strong style="color:${s.isAds ? '#0284c7' : '#475569'};">${safeSource}</strong><br>
+                            <small style="color:#64748b;">Từ khóa: <code>${safeKeyword}</code></small>
+                        </td>
+                        <td><strong>${safeTitle}</strong><br><small><code>${safePath}</code></small></td>
+                        <td><strong style="font-size:15px; color:#0f172a;">${formatSeconds(s.activeSeconds)}</strong></td>
+                        <td>Cuộn: <strong>${s.maxScroll}%</strong> | Click: <strong>${s.clicks}</strong></td>
+                        <td>${s.converted ? `<strong style="color:#16a34a;">✅ Đã bấm ${escapeHTML(s.conversionType || '').toUpperCase()}</strong>` : `<span style="color:#94a3b8;">Đang xem</span>`}</td>
+                        <td>${qBadge}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function copyCapturedPhoneNumbers() {
+            const summary = GoogleAdsOptimizer.getAnalyticsSummary();
+            const phones = [...new Set(summary.sessions.map(s => s.visitorPhone).filter(Boolean))];
+            if (!phones.length) {
+                alert('Hiện chưa có số điện thoại nào được ghi nhận!');
+                return;
+            }
+            navigator.clipboard.writeText(phones.join('\n'));
+            alert(`📞 Đã copy ${phones.length} Số điện thoại khách hàng:\n\n${phones.join('\n')}\n\nBạn có thể dán vào Zalo để kết bạn tư vấn hoặc tải lên tệp Đối tượng tùy chỉnh (Customer Match) của Google Ads!`);
+        }
+
+        function copyBadAdsIPs() {
+            const badIPs = GoogleAdsOptimizer.getFastBounceAdsIPs();
+            if (!badIPs.length) {
+                alert('Hiện chưa có IP Google Ads nào thoát nhanh dưới 4 giây!');
+                return;
+            }
+            navigator.clipboard.writeText(badIPs.join('\n'));
+            alert(`Đã copy ${badIPs.length} IP vào từ Google Ads nhưng thoát ngay dưới 4 giây:\n${badIPs.join(', ')}`);
+        }
+
+        function simulateAdsTrafficSession() {
+            GoogleAdsOptimizer.createSimulatedSession();
+            renderAdsDashboard();
+        }
+
+        function exportAdsReportCSV() {
+            const summary = GoogleAdsOptimizer.getAnalyticsSummary();
+            let csv = '\uFEFFThoi gian,So Dien Thoai Khach,IP,Thiet bi,Nguon,Tu khoa Chien dich,Trang dich,Thoi gian tuong tac (giay),Cuon trang (%),So click,Chuyen doi\n';
+            summary.sessions.forEach(s => {
+                csv += `"${s.startTimeFormatted}","${s.visitorPhone || 'Chua cung cap'}","${s.ip}","${s.device}","${s.sourceLabel}","${s.campaignOrKeyword}","${s.pagePath}",${s.activeSeconds},${s.maxScroll},${s.clicks},"${s.converted ? s.conversionType : 'Khong'}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `baocao_sdt_google_ads_cohoaviet_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await ensureDefaultCMSData();
+            if (AuthSecurity.isAuthenticated()) {
+                document.getElementById('loginOverlay').style.display = 'none';
+            }
+            renderAdsDashboard();
+            setInterval(renderAdsDashboard, 3000);
+        });
+    </script>
+</body>
+</html>
