@@ -12,22 +12,19 @@
     <!-- Open Graph / Zalo & Facebook Share -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Cờ Hoa Việt">
-    <meta property="og:title" id="og-title"
-        content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
-    <meta property="og:description" id="og-desc"
-        content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
+    <meta property="og:title" id="og-title" content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
+    <meta property="og:description" id="og-desc" content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
     <meta property="og:url" id="og-url" content="https://hoacaiaodaibieu.vn/">
-    <meta property="og:image" id="og-image"
-        content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
+    <meta property="og:image" id="og-image" content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
 
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17806899033"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-123456789"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        gtag('config', 'AW-17806899033');
+        gtag('config', 'AW-123456789');
     </script>
 
     <style>
@@ -671,42 +668,143 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding-bottom: 82px;
+            }
+
+            .top-contact-bar {
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 12px;
+            }
+
+            .logo-svg {
+                width: 38px;
+                height: 38px;
+            }
+
+            .logo-title {
+                font-size: 1.1rem;
+            }
+
+            .hotline-box {
+                display: none;
+            }
+
+            .top-pages-bar {
+                padding: 8px 12px;
+            }
+
+            .top-page-pill {
+                font-size: 0.8rem;
+                padding: 6px 12px;
+            }
+
             .container {
                 grid-template-columns: 1fr;
-                margin: 12px auto;
-                padding: 0 10px;
+                margin: 10px auto;
+                padding: 0 12px;
                 gap: 14px;
             }
 
             .main-article {
                 order: 1;
+                border-radius: 10px;
+            }
+
+            .product-top-banner {
+                font-size: 1.05rem;
+                padding: 12px 14px;
+                line-height: 1.35;
             }
 
             .article-inner {
                 padding: 14px;
             }
 
-            .left-sidebar {
-                position: static;
-                order: 2;
-            }
-
-            .product-top-banner {
-                font-size: 1.08rem;
-                padding: 10px 14px;
+            .product-top-gallery-wrap {
+                padding-bottom: 14px;
+                margin-bottom: 14px;
             }
 
             .post-thumbnail {
-                width: 185px;
+                width: 100%;
+                max-width: 100%;
+                border-radius: 8px;
+            }
+
+            .product-basic-info {
+                font-size: 0.96rem;
+                line-height: 1.65;
+                background: #f8fafc;
+                padding: 12px 14px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+            }
+
+            .post-content {
+                font-size: 0.98rem;
+                line-height: 1.7;
+                overflow-wrap: break-word;
+            }
+
+            .post-content img {
+                margin: 12px auto;
+                border-radius: 8px;
+            }
+
+            .post-content table {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .left-sidebar {
+                position: static;
+                order: 2;
+                gap: 12px;
+            }
+
+            #sidebarPagesWidget {
+                display: none !important;
             }
 
             .related-section {
-                padding: 0 10px;
+                padding: 0 12px;
+            }
+
+            .related-box {
+                padding: 14px;
+                border-radius: 10px;
+            }
+
+            .related-heading {
+                font-size: 1.02rem;
+                margin-bottom: 12px;
             }
 
             .related-grid {
                 grid-template-columns: repeat(2, 1fr);
                 gap: 10px;
+            }
+
+            .related-card {
+                border-radius: 8px;
+            }
+
+            .related-body {
+                padding: 10px;
+            }
+
+            .related-title {
+                font-size: 0.85rem;
+            }
+
+            .site-footer {
+                padding: 28px 14px 20px;
             }
 
             .footer-inner {
@@ -720,12 +818,19 @@
 
             .mobile-bottom-bar {
                 display: flex;
+                padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+            }
+
+            .m-btn {
+                padding: 12px 10px;
+                font-size: 0.88rem;
+                border-radius: 10px;
             }
 
             .zalo-popup {
-                bottom: 68px;
-                right: 10px;
-                left: 10px;
+                bottom: 74px;
+                right: 12px;
+                left: 12px;
                 width: auto;
             }
         }

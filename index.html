@@ -12,22 +12,19 @@
     <!-- Open Graph / Zalo & Facebook Share -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Cờ Hoa Việt">
-    <meta property="og:title" id="og-title"
-        content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
-    <meta property="og:description" id="og-desc"
-        content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
+    <meta property="og:title" id="og-title" content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
+    <meta property="og:description" id="og-desc" content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
     <meta property="og:url" id="og-url" content="https://hoacaiaodaibieu.vn/">
-    <meta property="og:image" id="og-image"
-        content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
+    <meta property="og:image" id="og-image" content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
 
 
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17806899033"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-123456789"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag() { dataLayer.push(arguments); }
         gtag('js', new Date());
-        gtag('config', 'AW-17806899033');
+        gtag('config', 'AW-123456789');
     </script>
 
     <style>
@@ -666,42 +663,89 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding-bottom: 82px;
+            }
+
             .top-contact-bar {
-                font-size: 0.75rem;
-                padding: 5px 10px;
+                display: none;
+            }
+
+            .site-header {
+                padding: 10px 12px;
+            }
+
+            .logo-svg {
+                width: 38px;
+                height: 38px;
+            }
+
+            .logo-title {
+                font-size: 1.12rem;
+            }
+
+            .logo-slogan {
+                font-size: 0.72rem;
+            }
+
+            .hotline-box {
+                display: none;
+            }
+
+            .btn-admin-link {
+                padding: 6px 10px;
+                font-size: 0.78rem;
+            }
+
+            .top-pages-bar {
+                padding: 8px 12px;
+            }
+
+            .top-page-pill {
+                font-size: 0.8rem;
+                padding: 6px 12px;
             }
 
             .container {
                 grid-template-columns: 1fr;
-                margin: 12px auto;
-                padding: 0 10px;
+                margin: 10px auto;
+                padding: 0 12px;
                 gap: 14px;
             }
 
+            /* Đưa Danh mục lên trên, Sản phẩm ở giữa, Tag và Liên hệ xuống dưới sản phẩm */
             .left-sidebar {
-                position: static;
+                display: contents;
+            }
+
+            .widget-box.nav-widget {
                 order: 1;
-                gap: 12px;
+                padding: 10px 12px;
+                border-radius: 10px;
+            }
+
+            #sidebarPagesWidget {
+                display: none !important;
             }
 
             main {
                 order: 2;
             }
 
-            .hotline-text small {
-                display: none;
+            .tag-widget {
+                order: 3;
+                padding: 12px;
+                border-radius: 10px;
             }
 
-            .hotline-box {
-                padding: 5px 10px;
-            }
-
-            .widget-box.nav-widget {
-                padding: 10px 12px;
+            .contact-widget {
+                order: 4;
+                padding: 14px;
+                border-radius: 10px;
             }
 
             .widget-box.nav-widget .widget-title {
-                font-size: 0.85rem;
+                font-size: 0.82rem;
                 margin-bottom: 8px;
                 padding-bottom: 4px;
             }
@@ -710,8 +754,9 @@
                 display: flex;
                 overflow-x: auto;
                 gap: 8px;
-                padding-bottom: 4px;
+                padding-bottom: 2px;
                 scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
             }
 
             .side-menu::-webkit-scrollbar {
@@ -728,7 +773,7 @@
                 background: #f8fafc;
                 border-radius: 20px;
                 padding: 7px 14px;
-                font-size: 0.85rem;
+                font-size: 0.84rem;
                 white-space: nowrap;
             }
 
@@ -743,19 +788,12 @@
                 padding-left: 14px;
             }
 
-            .contact-widget {
-                order: 3;
-            }
-
-            .tag-widget {
-                padding: 10px 12px;
-            }
-
             .tag-cloud {
                 flex-wrap: nowrap;
                 overflow-x: auto;
                 padding-bottom: 4px;
                 scrollbar-width: none;
+                -webkit-overflow-scrolling: touch;
             }
 
             .tag-cloud::-webkit-scrollbar {
@@ -764,6 +802,29 @@
 
             .tag-chip {
                 flex-shrink: 0;
+                padding: 6px 12px;
+            }
+
+            .filter-bar {
+                padding: 12px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 10px;
+                margin-bottom: 14px;
+                border-radius: 10px;
+            }
+
+            #currentHeading {
+                font-size: 1.05rem !important;
+            }
+
+            .search-input {
+                width: 100%;
+                min-width: unset;
+                padding: 10px 12px;
+                font-size: 15px;
+                border-radius: 8px;
+                background: #f8fafc;
             }
 
             .product-grid {
@@ -771,36 +832,63 @@
                 gap: 10px;
             }
 
+            .product-card {
+                border-radius: 10px;
+                box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            }
+
+            .cat-badge {
+                font-size: 0.65rem;
+                padding: 2px 6px;
+                top: 6px;
+                left: 6px;
+            }
+
             .card-body {
                 padding: 10px;
             }
 
             .card-title {
-                font-size: 0.88rem;
+                font-size: 0.86rem;
+                line-height: 1.35;
+                min-height: 2.7em;
+                margin-bottom: 6px;
             }
 
             .card-desc {
-                font-size: 0.78rem;
-                -webkit-line-clamp: 2;
-                margin-bottom: 8px;
+                display: none;
             }
 
             .card-footer {
-                font-size: 0.72rem;
-                flex-wrap: wrap;
-                gap: 4px;
-            }
-
-            .filter-bar {
-                padding: 12px;
+                padding-top: 8px;
+                font-size: 0.76rem;
                 flex-direction: column;
                 align-items: stretch;
-                gap: 8px;
+                gap: 6px;
             }
 
-            .search-input {
-                width: 100%;
-                min-width: unset;
+            .card-footer > span:not(.admin-view-badge) {
+                display: none;
+            }
+
+            .card-footer > .admin-view-badge {
+                text-align: center;
+            }
+
+            .btn-detail {
+                display: block;
+                text-align: center;
+                background: #fff1f2;
+                color: var(--primary);
+                padding: 6px 8px;
+                border-radius: 6px;
+                border: 1px solid #fecdd3;
+                font-size: 0.8rem;
+            }
+
+            .site-footer {
+                padding: 28px 14px 20px;
+                margin-top: 24px;
             }
 
             .footer-inner {
@@ -814,12 +902,19 @@
 
             .mobile-bottom-bar {
                 display: flex;
+                padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+            }
+
+            .m-btn {
+                padding: 12px 10px;
+                font-size: 0.88rem;
+                border-radius: 10px;
             }
 
             .zalo-popup {
-                bottom: 68px;
-                right: 10px;
-                left: 10px;
+                bottom: 74px;
+                right: 12px;
+                left: 12px;
                 width: auto;
             }
         }

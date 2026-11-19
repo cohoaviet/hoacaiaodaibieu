@@ -1793,7 +1793,7 @@ const GoogleAdsOptimizer = {
 // ============================================================================
 const AdsConversionTracker = {
     config: {
-        conversionId: 'AW-17806899033',
+        conversionId: 'AW-123456789',
         callLabel: 'NHAN_CHUYEN_DOI_GOI_DIEN',
         zaloLabel: 'NHAN_CHUYEN_DOI_CHAT_ZALO',
         callValue: 50000,
