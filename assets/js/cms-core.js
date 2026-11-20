@@ -78,7 +78,7 @@ const HighCapacityDB = {
                             this.memoryCache[key] = parsed;
                         }
                     }
-                } catch (e) {}
+                } catch (e) { }
             });
 
             if (!window.indexedDB) {
@@ -307,7 +307,7 @@ const UploadFolderManager = {
                     await writable.write(blob);
                     await writable.close();
                     count++;
-                } catch (e) {}
+                } catch (e) { }
             }
         }
         return { success: true, count: count, folderName: this.dirHandle.name };
@@ -342,7 +342,7 @@ function getStorageUsageKB() {
         const tagsStr = JSON.stringify(HighCapacityDB.getItem('cms_tags') || []);
         const uploadsStr = JSON.stringify(HighCapacityDB.getItem('cms_uploads_cache') || {});
         totalBytes += (postsStr.length + pagesStr.length + tagsStr.length + uploadsStr.length) * 2;
-    } catch (e) {}
+    } catch (e) { }
 
     for (let key in localStorage) {
         if (localStorage.hasOwnProperty(key) && !['cms_posts', 'cms_pages', 'cms_tags'].includes(key)) {
@@ -838,6 +838,7 @@ const Analytics = {
 // ============================================================================
 async function ensureDefaultCMSData() {
     await HighCapacityDB.ready();
+    await syncStaticDataFromGitHub(false);
 
     if (TagManager.getAll().length === 0) {
         TagManager.saveTag({ name: 'Hoa cài áo đại biểu', desc: 'Mẫu hoa cài áo đại biểu sự kiện trang trọng' });
@@ -978,25 +979,30 @@ async function ensureDefaultCMSData() {
     }
 }
 
-async function syncStaticDataFromGitHub() {
-    await HighCapacityDB.ready();
-    if (localStorage.getItem('cms_local_modified') === 'true') return;
-    try {
-        const res = await fetch('assets/data.json?v=' + Date.now());
-        if (!res.ok) return;
-        const data = await res.json();
-        const localVersion = localStorage.getItem('cms_sync_date');
-        if (data.exportDate && data.exportDate !== localVersion) {
-            if (data.posts) await HighCapacityDB.setItem('cms_posts', data.posts);
-            if (data.tags) await HighCapacityDB.setItem('cms_tags', data.tags);
-            if (data.pages) await HighCapacityDB.setItem('cms_pages', data.pages);
-            if (data.users) localStorage.setItem('cms_users', JSON.stringify(data.users));
-            localStorage.setItem('cms_sync_date', data.exportDate);
-            location.reload();
-        }
-    } catch (e) {}
+let _syncPromise = null;
+async function syncStaticDataFromGitHub(shouldReload = false) {
+    if (_syncPromise) return _syncPromise;
+    _syncPromise = (async () => {
+        await HighCapacityDB.ready();
+        if (localStorage.getItem('cms_local_modified') === 'true') return;
+        try {
+            // Dùng cache: 'no-cache' để tận dụng ETag/304 của GitHub Pages (tải siêu nhanh nếu file không đổi)
+            const res = await fetch('assets/data.json', { cache: 'no-cache' });
+            if (!res.ok) return;
+            const data = await res.json();
+            const localVersion = localStorage.getItem('cms_sync_date');
+            if (data.exportDate && data.exportDate !== localVersion) {
+                if (data.posts) await HighCapacityDB.setItem('cms_posts', data.posts);
+                if (data.tags) await HighCapacityDB.setItem('cms_tags', data.tags);
+                if (data.pages) await HighCapacityDB.setItem('cms_pages', data.pages);
+                if (data.users) localStorage.setItem('cms_users', JSON.stringify(data.users));
+                localStorage.setItem('cms_sync_date', data.exportDate);
+                if (shouldReload) location.reload();
+            }
+        } catch (e) { }
+    })();
+    return _syncPromise;
 }
-syncStaticDataFromGitHub();
 
 // ============================================================================
 // 7. QUẢN LÝ TÀI KHOẢN & KIỂM TRA QUYỀN HIỂN THỊ LƯỢT XEM
@@ -1363,7 +1369,7 @@ const AdShield = {
                 const info = { ip: data2.ip, isp: 'ISP Việt Nam', city: 'VN' };
                 sessionStorage.setItem('visitor_ip_info', JSON.stringify(info));
                 return info;
-            } catch (err) {}
+            } catch (err) { }
         }
         return { ip: '113.190.24.88 (Local)', isp: 'VNPT / Viettel', city: 'Hanoi' };
     },
@@ -1459,7 +1465,7 @@ const GoogleAdsOptimizer = {
     saveSessions(list) {
         try {
             localStorage.setItem('cms_ads_sessions', JSON.stringify(list.slice(0, 120)));
-        } catch (e) {}
+        } catch (e) { }
     },
 
     extractValidVNPhone(rawStr) {
@@ -1969,7 +1975,7 @@ const SEORouter = {
                 document.title,
                 finalBrowserUrl
             );
-        } catch (e) {}
+        } catch (e) { }
     }
 };
 
