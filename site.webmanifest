@@ -1,0 +1,19 @@
+{
+  "name": "Cờ Hoa Việt - Hoa Cài Áo Đại Biểu & Huy Hiệu",
+  "short_name": "Cờ Hoa Việt",
+  "icons": [
+    {
+      "src": "/assets/uploads/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/uploads/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#b71c1c",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}

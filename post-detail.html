@@ -8,27 +8,25 @@
     <meta name="description" id="seo-desc"
         content="Chuyên sản xuất hoa cài áo đại biểu, huy hiệu tròn in logo, bảng tên, thẻ  tên sắc nét.">
     <link rel="canonical" href="https://hoacaiaodaibieu.vn/" />
+    <!-- Logo hiển thị trình duyệt, Google & Màn hình chính điện thoại (Favicon) -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/uploads/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/uploads/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/uploads/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#b71c1c">
 
     <!-- Open Graph / Zalo & Facebook Share -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Cờ Hoa Việt">
-    <meta property="og:title" id="og-title"
-        content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
-    <meta property="og:description" id="og-desc"
-        content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
+    <meta property="og:title" id="og-title" content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
+    <meta property="og:description" id="og-desc" content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
     <meta property="og:url" id="og-url" content="https://hoacaiaodaibieu.vn/">
-    <meta property="og:image" id="og-image"
-        content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
+    <meta property="og:image" id="og-image" content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
 
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-123456789"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'AW-123456789');
-    </script>
+    <!-- Preload dữ liệu để tăng tốc độ hiển thị đầu tiên (LCP) -->
+    <link rel="preload" href="assets/data.json" as="fetch" crossorigin>
 
     <style>
         :root {
@@ -46,6 +44,27 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+        }
+
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container > *,
+        main,
+        .left-sidebar,
+        .widget-box,
+        .product-grid > *,
+        .product-card,
+        .main-article,
+        .landing-article,
+        .related-card,
+        .showcase-card,
+        .footer-inner > * {
+            min-width: 0;
+            max-width: 100%;
         }
 
         body {
@@ -558,15 +577,18 @@
 
         @keyframes pulse {
             0% {
-                box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7);
+                transform: scale(1);
+                opacity: 1;
             }
 
             70% {
-                box-shadow: 0 0 0 12px rgba(225, 29, 72, 0);
+                transform: scale(1.08);
+                opacity: 0.9;
             }
 
             100% {
-                box-shadow: 0 0 0 0 rgba(225, 29, 72, 0);
+                transform: scale(1);
+                opacity: 1;
             }
         }
 
@@ -838,76 +860,49 @@
             }
         }
 
-        /* === FIX DỨT ĐIỂM LỖI TRÀN KHUNG & THU NHỎ CHỮ TRÊN MOBILE === */
-        html,
-        body {
+        /* === TỐI ƯU CHỐNG GIẬT BỐ CỤC (CLS -> 0) === */
+        .top-pages-bar {
+            min-height: 48px;
+        }
+        .main-article {
+            min-height: 820px;
+        }
+        .post-thumbnail {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
+        }
+        .article-content img {
             max-width: 100%;
-            overflow-x: hidden;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
         }
-
-        img {
-            max-width: 100%;
+        .related-grid {
+            min-height: 240px;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: minmax(0, 1fr) !important;
-                width: 100% !important;
-                max-width: 100vw !important;
-            }
-
-            .container>*,
-            main,
-            .widget-box,
-            .filter-bar,
-            .product-card,
-            .related-card,
-            .showcase-card,
-            .main-article,
-            .landing-article {
-                min-width: 0 !important;
-                max-width: 100% !important;
-            }
-
-            .product-grid,
-            .related-grid,
-            .showcase-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                width: 100% !important;
-            }
-
-            .site-header,
-            .top-pages-bar,
-            .pages-nav-bar,
-            .ads-hero,
-            .trust-bar,
-            .site-footer {
-                max-width: 100vw !important;
-                overflow-x: hidden;
-            }
-        }
-
         /* === HIỂN THỊ NÚT TRÒN GỌI ĐIỆN & ZALO TRÊN MOBILE GIỐNG BẢN WEB === */
         @media (max-width: 768px) {
             body {
                 padding-bottom: 20px !important;
             }
-
             .mobile-bottom-bar {
                 display: none !important;
             }
-
             .floating-contact {
                 display: flex !important;
                 bottom: 20px;
                 right: 14px;
             }
-
             .zalo-popup {
                 bottom: 145px;
                 right: 12px;
                 left: 12px;
                 width: auto;
+            }
+            .main-article {
+                min-height: 680px;
             }
         }
     </style>
@@ -953,7 +948,7 @@
     </header>
 
     <!-- THANH ĐIỀU HƯỚNG NHANH CÁC TRANG ĐÍCH QUẢNG CÁO / BẢNG BÁO GIÁ -->
-    <div class="top-pages-bar" id="topStaticPagesBar" style="display:none;">
+    <div class="top-pages-bar" id="topStaticPagesBar">
         <div class="top-pages-inner" id="topStaticPagesList"></div>
     </div>
 
@@ -1010,7 +1005,7 @@
 
                     <!-- 2. Ảnh sản phẩm ở góc trái trên + Đường kẻ ngang phân cách -->
                     <div class="product-top-gallery-wrap">
-                        <img src="" alt="" class="post-thumbnail" id="post-thumb" itemprop="image" fetchpriority="high">
+                        <img src="" alt="" width="800" height="600" decoding="async" class="post-thumbnail" id="post-thumb" itemprop="image" fetchpriority="high">
                     </div>
 
                     <!-- 3. Khối thông tin cơ bản về sản phẩm theo đúng mẫu ảnh đính kèm -->
@@ -1052,11 +1047,11 @@
                 <h3>CỜ HOA VIỆT - HOACAIAODAIBIEU.VN</h3>
                 <p><strong>Chuyên sản xuất & cung cấp:</strong> Hoa cài áo đại biểu, Nơ cài áo sự kiện, Huy hiệu tròn
                     cài áo in logo, Bảng tên nhân viên & Phụ kiện đại hội.</p>
-                <p>📞 Cơ sở 1 TP.Hà Nội: <a href="tel:0975121636"
+                <p>📞 Hotline / Zalo Cơ sở 1 TP.Hà Nội: <a href="tel:0975121636"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Ms.Thuỷ 0975 121 636</a></p>
-                <p>📞 Cơ sở 2 TP.HCM : <a href="tel:0906111852"
+                <p>📞 Hotline / Zalo Cơ sở 2 TP.HCM : <a href="tel:0906111852"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Ms.Ngọc 0906 111 852</a></p>
-                <p>📞 Cơ sở 1 TP.Hà Nội: <a href="tel:0377548632"
+                <p>📞 Hotline / Zalo Cơ sở 1 TP.Hà Nội: <a href="tel:0377548632"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Mr.Tiện 0377 548 632</a></p>
             </div>
             <div class="footer-col">
@@ -1106,7 +1101,7 @@
 
     <div class="floating-contact">
         <button class="float-btn btn-zalo" onclick="toggleZalo()">Zalo</button>
-        <a href="tel:0975121636" class="float-btn btn-call">📞</a>
+        <a href="tel:0975121636" class="float-btn btn-call" aria-label="Gọi điện thoại tư vấn 0975 121 636">📞</a>
     </div>
 
     <div class="mobile-bottom-bar">
@@ -1185,7 +1180,7 @@
                 return `
                 <article class="related-card">
                     <a href="${itemUrl}" class="related-thumb-wrap" title="hoacaiaodaibieu.vn${prettyPath}">
-                        <img src="${item.thumb}" alt="${item.thumbAlt || item.title}" data-seo-filename="${seoFile}" data-upload-path="${uploadPath}" class="related-thumb" loading="lazy">
+                        <img src="${item.thumb}" alt="${item.thumbAlt || item.title}" data-seo-filename="${seoFile}" data-upload-path="${uploadPath}" class="related-thumb" width="800" height="600" decoding="async" loading="lazy">
                     </a>
                     <div class="related-body">
                         <h3 style="font-size:0.92rem;">

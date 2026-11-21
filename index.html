@@ -8,27 +8,26 @@
     <meta name="description"
         content="Chuyên sản xuất hoa cài áo đại biểu, hoa cài áo sự kiện, huy hiệu tròn in logo sắc nét. Truyền tải giá trị - Nâng tầm doanh nghiệp. Hotline: 0975 121 636.">
     <link rel="canonical" href="https://hoacaiaodaibieu.vn/" />
+    <!-- Logo hiển thị trình duyệt, Google & Màn hình chính điện thoại (Favicon) -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/assets/uploads/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/uploads/icon-192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/uploads/apple-touch-icon.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <meta name="theme-color" content="#b71c1c">
 
     <!-- Open Graph / Zalo & Facebook Share -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Cờ Hoa Việt">
-    <meta property="og:title" id="og-title"
-        content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
-    <meta property="og:description" id="og-desc"
-        content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
+    <meta property="og:title" id="og-title" content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
+    <meta property="og:description" id="og-desc" content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
     <meta property="og:url" id="og-url" content="https://hoacaiaodaibieu.vn/">
-    <meta property="og:image" id="og-image"
-        content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
+    <meta property="og:image" id="og-image" content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
 
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-123456789"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'AW-123456789');
-    </script>
+    <!-- Preload dữ liệu & ảnh LCP để tăng tốc độ hiển thị đầu tiên -->
+    <link rel="preload" href="assets/data.json" as="fetch" crossorigin>
+    <link rel="preload" href="assets/uploads/huy-hieu-la-co-chu-nhat-cohoaviet-1.jpg" as="image" fetchpriority="high">
 
     <style>
         :root {
@@ -46,6 +45,27 @@
             margin: 0;
             padding: 0;
             -webkit-tap-highlight-color: transparent;
+        }
+
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container > *,
+        main,
+        .left-sidebar,
+        .widget-box,
+        .product-grid > *,
+        .product-card,
+        .main-article,
+        .landing-article,
+        .related-card,
+        .showcase-card,
+        .footer-inner > * {
+            min-width: 0;
+            max-width: 100%;
         }
 
         body {
@@ -552,15 +572,18 @@
 
         @keyframes pulse {
             0% {
-                box-shadow: 0 0 0 0 rgba(225, 29, 72, 0.7);
+                transform: scale(1);
+                opacity: 1;
             }
 
             70% {
-                box-shadow: 0 0 0 12px rgba(225, 29, 72, 0);
+                transform: scale(1.08);
+                opacity: 0.9;
             }
 
             100% {
-                box-shadow: 0 0 0 0 rgba(225, 29, 72, 0);
+                transform: scale(1);
+                opacity: 1;
             }
         }
 
@@ -870,11 +893,11 @@
                 gap: 6px;
             }
 
-            .card-footer>span:not(.admin-view-badge) {
+            .card-footer > span:not(.admin-view-badge) {
                 display: none;
             }
 
-            .card-footer>.admin-view-badge {
+            .card-footer > .admin-view-badge {
                 text-align: center;
             }
 
@@ -922,76 +945,40 @@
             }
         }
 
-        /* === FIX DỨT ĐIỂM LỖI TRÀN KHUNG & THU NHỎ CHỮ TRÊN MOBILE === */
-        html,
-        body {
-            max-width: 100%;
-            overflow-x: hidden;
+        /* === TỐI ƯU CHỐNG GIẬT BỐ CỤC (CLS -> 0) === */
+        .top-pages-bar {
+            min-height: 48px;
         }
-
-        img {
-            max-width: 100%;
+        #productGrid {
+            min-height: 760px;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                grid-template-columns: minmax(0, 1fr) !important;
-                width: 100% !important;
-                max-width: 100vw !important;
-            }
-
-            .container>*,
-            main,
-            .widget-box,
-            .filter-bar,
-            .product-card,
-            .related-card,
-            .showcase-card,
-            .main-article,
-            .landing-article {
-                min-width: 0 !important;
-                max-width: 100% !important;
-            }
-
-            .product-grid,
-            .related-grid,
-            .showcase-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-                width: 100% !important;
-            }
-
-            .site-header,
-            .top-pages-bar,
-            .pages-nav-bar,
-            .ads-hero,
-            .trust-bar,
-            .site-footer {
-                max-width: 100vw !important;
-                overflow-x: hidden;
-            }
+        .card-thumb {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4 / 3;
+            object-fit: cover;
         }
-
         /* === HIỂN THỊ NÚT TRÒN GỌI ĐIỆN & ZALO TRÊN MOBILE GIỐNG BẢN WEB === */
         @media (max-width: 768px) {
             body {
                 padding-bottom: 20px !important;
             }
-
             .mobile-bottom-bar {
                 display: none !important;
             }
-
             .floating-contact {
                 display: flex !important;
                 bottom: 20px;
                 right: 14px;
             }
-
             .zalo-popup {
                 bottom: 145px;
                 right: 12px;
                 left: 12px;
                 width: auto;
+            }
+            #productGrid {
+                min-height: 680px;
             }
         }
     </style>
@@ -1043,7 +1030,7 @@
     </header>
 
     <!-- THANH ĐIỀU HƯỚNG NHANH CÁC TRANG ĐÍCH QUẢNG CÁO / BẢNG BÁO GIÁ -->
-    <div class="top-pages-bar" id="topStaticPagesBar" style="display:none;">
+    <div class="top-pages-bar" id="topStaticPagesBar">
         <div class="top-pages-inner" id="topStaticPagesList"></div>
     </div>
 
@@ -1080,10 +1067,10 @@
             <div class="widget-box contact-widget">
                 <h2 class="widget-title">Liên Hệ Đặt Hàng</h2>
                 <p><strong>Xưởng Sản Xuất Cờ Hoa Việt</strong></p>
-                <p style="margin: 8px 0; font-size: 0.9rem;">📞HN: <a href="tel:0975121636"
+                <p style="margin: 8px 0; font-size: 0.9rem;">📞 Cs.HN: <a href="tel:0975121636"
                         style="color:var(--primary); font-weight:800; text-decoration:none;">Ms.Thuỷ 0975 121 636</a>
                 </p>
-                <p style="margin: 8px 0; font-size: 0.9rem;">📞 HCM: <a href="tel:0906111852"
+                <p style="margin: 8px 0; font-size: 0.9rem;">📞 Cs.HCM: <a href="tel:0906111852"
                         style="color:var(--primary); font-weight:800; text-decoration:none;">Ms.Ngọc 0906 111 852</a>
                 </p>
                 <p style="font-size: 0.84rem; color: #64748b;">Chuyên sản xuất trực tiếp hoa cài áo đại biểu, huy hiệu
@@ -1109,11 +1096,11 @@
                 <p><strong>Chuyên sản xuất & cung cấp:</strong> Hoa cài áo đại biểu, Nơ cài áo sự kiện, Huy hiệu tròn
                     cài áo in logo, Bảng tên nhân viên & Phụ kiện đại hội.</p>
                 <p>🎯 Phương châm: <em>"Truyền tải giá trị - Nâng tầm doanh nghiệp"</em></p>
-                <p>📞 Cơ sở 1 TP.Hà Nội: <a href="tel:0975121636"
+                <p>📞 Hotline / Zalo Cơ sở 1 TP.Hà Nội: <a href="tel:0975121636"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Ms.Thuỷ 0975 121 636</a></p>
-                <p>📞 Cơ sở 2 TP.HCM : <a href="tel:0906111852"
+                <p>📞 Hotline / Zalo Cơ sở 2 TP.HCM : <a href="tel:0906111852"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Ms.Ngọc 0906 111 852</a></p>
-                <p>📞 Cơ sở 1 TP.Hà Nội: <a href="tel:0377548632"
+                <p>📞 Hotline / Zalo Cơ sở 1 TP.Hà Nội: <a href="tel:0377548632"
                         style="color:#fde047; font-weight:800; font-size:0.95rem;">Mr.Tiện 0377 548 632</a></p>
             </div>
             <div class="footer-col">
@@ -1258,7 +1245,7 @@
                 <article class="product-card" itemscope itemtype="https://schema.org/Product">
                     <a href="${postUrl}" class="card-thumb-wrap" title="hoacaiaodaibieu.vn${prettyPath}">
                         <span class="cat-badge">${CATEGORY_NAMES[post.category] || 'Sự kiện'}</span>
-                        <img src="${post.thumb}" alt="${seoAlt}" title="${seoAlt}" data-seo-filename="${seoFile}" data-upload-path="${uploadPath}" class="card-thumb" itemprop="image" ${idx < 4 ? 'fetchpriority="high"' : 'loading="lazy"'}>
+                        <img src="${post.thumb}" alt="${seoAlt}" title="${seoAlt}" data-seo-filename="${seoFile}" data-upload-path="${uploadPath}" width="800" height="600" decoding="async" class="card-thumb" itemprop="image" ${idx < 2 ? 'fetchpriority="high"' : 'loading="lazy"'}>
                     </a>
                     <div class="card-body">
                         <h2 style="font-size:1rem;"><a href="${postUrl}" class="card-title" itemprop="name" title="hoacaiaodaibieu.vn${prettyPath}">${post.title}</a></h2>
