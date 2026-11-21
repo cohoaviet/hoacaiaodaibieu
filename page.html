@@ -19,10 +19,13 @@
     <!-- Open Graph / Zalo & Facebook Share -->
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Cờ Hoa Việt">
-    <meta property="og:title" id="og-title" content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
-    <meta property="og:description" id="og-desc" content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
+    <meta property="og:title" id="og-title"
+        content="Cờ Hoa Việt | Sản Xuất Hoa Cài Áo Đại Biểu & Huy Hiệu Tròn In Logo">
+    <meta property="og:description" id="og-desc"
+        content="Xưởng sản xuất trực tiếp hoa cài áo đại biểu, hoa sự kiện, huy hiệu tròn in logo, bảng tên nhân viên. Hotline/Zalo: 0975 121 636.">
     <meta property="og:url" id="og-url" content="https://hoacaiaodaibieu.vn/">
-    <meta property="og:image" id="og-image" content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
+    <meta property="og:image" id="og-image"
+        content="https://hoacaiaodaibieu.vn/assets/uploads/hoa-cai-ao-dai-bieu-cohoaviet-1.webp">
 
 
     <!-- Preload dữ liệu để tăng tốc độ hiển thị đầu tiên (LCP) -->
@@ -48,22 +51,23 @@
         }
 
 
-        html, body {
+        html,
+        body {
             max-width: 100%;
             overflow-x: hidden;
         }
 
-        .container > *,
+        .container>*,
         main,
         .left-sidebar,
         .widget-box,
-        .product-grid > *,
+        .product-grid>*,
         .product-card,
         .main-article,
         .landing-article,
         .related-card,
         .showcase-card,
-        .footer-inner > * {
+        .footer-inner>* {
             min-width: 0;
             max-width: 100%;
         }
@@ -1011,43 +1015,63 @@
         }
 
         /* === TỐI ƯU CHỐNG GIẬT BỐ CỤC (CLS -> 0) === */
-        .hero-banner, #heroBannerImg {
+        .hero-banner,
+        #heroBannerImg {
             width: 100%;
             height: auto;
             aspect-ratio: 4 / 3;
             object-fit: cover;
         }
-        .landing-article, main {
+
+        .landing-article,
+        main {
             min-height: 760px;
         }
-        .landing-content img, .article-content img {
+
+        .landing-content img,
+        .article-content img {
             max-width: 100%;
             height: auto;
             aspect-ratio: 4 / 3;
             object-fit: cover;
         }
+
         /* === HIỂN THỊ NÚT TRÒN GỌI ĐIỆN & ZALO TRÊN MOBILE GIỐNG BẢN WEB === */
         @media (max-width: 768px) {
             body {
                 padding-bottom: 20px !important;
             }
+
             .mobile-bottom-bar {
                 display: none !important;
             }
+
             .floating-contact {
                 display: flex !important;
                 bottom: 20px;
                 right: 14px;
             }
+
             .zalo-popup {
                 bottom: 145px;
                 right: 12px;
                 left: 12px;
                 width: auto;
             }
-            .landing-article, main {
+
+            .landing-article,
+            main {
                 min-height: 640px;
             }
+        }
+
+        /* Chống giật ngang khi chuyển tab & làm mượt hiệu ứng chuyển trang */
+        html {
+            scrollbar-gutter: stable;
+        }
+
+        @view-transition {
+            navigation: auto;
         }
     </style>
 </head>
@@ -1115,7 +1139,8 @@
                 </div>
             </div>
             <div class="hero-img-box">
-                <img src="" alt="Banner sản phẩm Cờ Hoa Việt" id="heroBannerImg" width="800" height="600" decoding="async" fetchpriority="high">
+                <img src="" alt="Banner sản phẩm Cờ Hoa Việt" id="heroBannerImg" width="800" height="600"
+                    decoding="async" fetchpriority="high">
             </div>
         </div>
     </section>

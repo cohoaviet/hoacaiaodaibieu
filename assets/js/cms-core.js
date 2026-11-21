@@ -838,7 +838,12 @@ const Analytics = {
 // ============================================================================
 async function ensureDefaultCMSData() {
     await HighCapacityDB.ready();
-    await syncStaticDataFromGitHub(false);
+    const hasLocalData = PostManager.getAll().length > 0 && PageManager.getAll().length > 0;
+    if (hasLocalData) {
+        syncStaticDataFromGitHub(false); // Chạy ngầm, không chặn hiển thị
+    } else {
+        await syncStaticDataFromGitHub(false); // Chỉ đợi ở lần đầu tiên khách vào web
+    }
 
     if (TagManager.getAll().length === 0) {
         TagManager.saveTag({ name: 'Hoa cài áo đại biểu', desc: 'Mẫu hoa cài áo đại biểu sự kiện trang trọng' });
